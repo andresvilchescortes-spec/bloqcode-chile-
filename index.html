@@ -10,6 +10,20 @@
     <link rel="icon" type="image/png" href="./assets/branding/IsotipoBC.png">
     <link rel="icon" type="image/svg+xml" href="./assets/branding/IsotipoBC.svg">
     <link rel="apple-touch-icon" href="./assets/branding/IsotipoBC.png">
+    <style>
+        /* Suave animación de flotación para el isotipo. Respetamos prefers-reduced-motion */
+        @keyframes float {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+            100% { transform: translateY(0); }
+        }
+        .float {
+            animation: float 3.2s ease-in-out infinite;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .float { animation: none; }
+        }
+    </style>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex items-center justify-center selection:bg-blue-600 selection:text-white">
 
@@ -18,9 +32,10 @@
 
     <!-- Contenedor central -->
     <main class="w-full max-w-3xl text-center px-6 py-12">
-        <picture class="mx-auto mb-8">
+        <picture class="mx-auto mb-8 inline-block">
             <source srcset="./assets/branding/IsotipoBC.svg" type="image/svg+xml">
-            <img src="./assets/branding/IsotipoBC.png" alt="Bloqcode - Isotipo" class="w-36 h-36 mx-auto" />
+            <!-- Responsive sizing: small devices -> 5rem, md -> 9rem, lg -> 12rem -->
+            <img src="./assets/branding/IsotipoBC.png" alt="Bloqcode - Isotipo" class="w-20 h-20 md:w-36 md:h-36 lg:w-48 lg:h-48 mx-auto float" />
         </picture>
 
         <h1 class="text-4xl md:text-5xl font-extrabold text-amber-400 mb-4">Bloqcode - En construcción</h1>
