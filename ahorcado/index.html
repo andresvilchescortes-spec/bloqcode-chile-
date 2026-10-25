@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>El Ahorcado Multijugador</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Fredoka & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      user-select: none;
+    }
+    .font-game {
+      font-family: 'Fredoka', cursive, sans-serif;
+    }
+    /* SVG Body Parts Transition */
+    .hang-part {
+      transition: stroke-dashoffset 0.4s ease-out, opacity 0.3s ease-out;
+      opacity: 0;
+    }
+    .hang-part.visible {
+      opacity: 1;
+    }
+    /* Letter slot styling */
+    .letter-slot {
+      min-width: 2.2rem;
+      border-bottom: 4px solid #475569;
+      transition: all 0.25s ease;
+    }
+    .letter-slot.filled {
+      border-bottom-color: #38bdf8;
+    }
+    .letter-slot.space-slot {
+      min-width: 1.2rem;
+      border-bottom: none;
+    }
+    /* Key animations */
+    .key-btn {
+      transition: all 0.15s ease;
+    }
+    .key-btn:active:not(:disabled) {
+      transform: scale(0.92);
+    }
+    /* Shake animation for errors */
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-6px); }
+      40%, 80% { transform: translateX(6px); }
+    }
+    .shake {
+      animation: shake 0.4s ease-in-out;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
+
+  <!-- Header -->
+  <header class="w-full bg-slate-900/90 backdrop-blur border-b border-slate-800 py-3 px-4 shadow-md sticky top-0 z-40">
+    <div class="max-w-5xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <span class="text-2xl text-amber-400"><i class="fa-solid fa-skull-crossbones"></i></span>
+        <div>
+          <h1 class="text-lg md:text-xl font-game font-bold tracking-wide text-white leading-tight">El Ahorcado Multijugador</h1>
+          <p id="targetGoalHeader" class="text-xs text-indigo-300 font-medium">Meta: 3 puntos para ganar</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="soundToggleBtn" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition" title="Alternar Sonido">
+          <i id="soundIcon" class="fa-solid fa-volume-high"></i>
+        </button>
+        <button id="configMatchBtn" class="px-3 py-2 text-xs md:text-sm font-semibold rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-2" title="Reiniciar Partida">
+          <i class="fa-solid fa-sliders"></i> <span class="hidden sm:inline">Nueva Partida</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Scoreboard Bar -->
+  <section class="w-full bg-slate-900/60 border-b border-slate-800/80 px-4 py-2.5">
+    <div class="max-w-5xl mx-auto flex items-center justify-between gap-3 overflow-x-auto pb-1">
+      <div class="flex items-center gap-2 shrink-0">
+        <span class="text-xs uppercase font-bold tracking-wider text-slate-400">Puntajes:</span>
+      </div>
+      <div id="playersScoreContainer" class="flex items-center gap-2 sm:gap-3 flex-wrap">
+        <!-- Generado dinámicamente con las tarjetas de cada jugador -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Game Container -->
+  <main class="max-w-5xl w-full mx-auto p-4 flex-1 flex flex-col justify-center items-center gap-5">
+
+    <!-- Top Status Info: Master actual + Intentos restantes + Pista -->
+    <div class="w-full flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-900/80 border border-slate-800 p-3.5 rounded-2xl">
+      <div class="flex items-center gap-2.5">
+        <span class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-sm">
+          <i class="fa-solid fa-feather-pointed"></i>
+        </span>
+        <div class="text-left">
+          <span class="text-[11px] block text-slate-400 uppercase tracking-wider font-semibold">Creador de la palabra</span>
+          <span id="currentMasterName" class="font-game text-base md:text-lg font-bold text-indigo-400">Jugador 1</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <!-- Vidas -->
+        <div class="flex items-center gap-2 bg-slate-800/80 px-3 py-1.5 rounded-xl border border-slate-700/60">
+          <span class="text-xs text-slate-300 font-medium">Fallos restantes:</span>
+          <span id="livesDisplay" class="font-game text-lg font-bold text-amber-400">6 / 6</span>
+        </div>
+
+        <!-- Botón estelar: Alguien adivinó -->
+        <button id="directGuessBtn" class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-game font-semibold text-xs md:text-sm shadow-lg shadow-emerald-700/30 active:scale-95 transition flex items-center gap-2">
+          <i class="fa-solid fa-bullseye"></i>
+          <span>¡Adivinó la palabra!</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Pista Banner (si existe) -->
+    <div id="clueBanner" class="w-full hidden bg-indigo-950/40 border border-indigo-800/50 rounded-xl px-4 py-2 text-center text-xs sm:text-sm text-indigo-200">
+      <i class="fa-solid fa-lightbulb text-amber-300 mr-1.5"></i> Pista: <span id="clueText" class="font-semibold italic text-white"></span>
+    </div>
+
+    <!-- Central Board: Gallows & Word Display -->
+    <div class="w-full grid grid-cols-1 md:grid-cols-12 gap-5 bg-slate-900/60 border border-slate-800 rounded-3xl p-4 sm:p-6 backdrop-blur shadow-2xl items-center">
+      
+      <!-- Left: SVG Canvas (Gallows & Hanging figure) -->
+      <div class="md:col-span-5 flex justify-center items-center">
+        <div class="w-48 h-56 sm:w-56 sm:h-64 relative bg-slate-950/70 rounded-2xl p-2 border border-slate-800/80 flex items-center justify-center">
+          <svg id="hangmanSvg" class="w-full h-full" viewBox="0 0 200 240" fill="none" stroke="currentColor">
+            <!-- Horca (Estructura base) -->
+            <line x1="20" y1="220" x2="180" y2="220" stroke="#64748b" stroke-width="6" stroke-linecap="round" />
+            <line x1="50" y1="220" x2="50" y2="20" stroke="#64748b" stroke-width="6" stroke-linecap="round" />
+            <line x1="50" y1="20" x2="140" y2="20" stroke="#64748b" stroke-width="6" stroke-linecap="round" />
+            <line x1="50" y1="60" x2="90" y2="20" stroke="#64748b" stroke-width="5" stroke-linecap="round" />
+            <!-- Cuerda -->
+            <line x1="140" y1="20" x2="140" y2="55" stroke="#f59e0b" stroke-width="3" stroke-dasharray="3,2" />
+
+            <!-- Partes del Ahorcado (6 errores) -->
+            <!-- 1. Cabeza -->
+            <circle id="part-head" class="hang-part" cx="140" cy="75" r="18" stroke="#f87171" stroke-width="4.5" fill="#1e293b" />
+            <!-- Cara triste en derrota -->
+            <g id="part-face" class="hang-part opacity-0">
+              <line x1="133" y1="70" x2="137" y2="74" stroke="#f87171" stroke-width="2" />
+              <line x1="137" y1="70" x2="133" y2="74" stroke="#f87171" stroke-width="2" />
+              <line x1="143" y1="70" x2="147" y2="74" stroke="#f87171" stroke-width="2" />
+              <line x1="147" y1="70" x2="143" y2="74" stroke="#f87171" stroke-width="2" />
+              <path d="M 134 83 Q 140 78 146 83" stroke="#f87171" stroke-width="2" fill="transparent" />
+            </g>
+            <!-- 2. Cuerpo -->
+            <line id="part-body" class="hang-part" x1="140" y1="93" x2="140" y2="150" stroke="#f87171" stroke-width="4.5" stroke-linecap="round" />
+            <!-- 3. Brazo Izquierdo -->
+            <line id="part-arm-l" class="hang-part" x1="140" y1="108" x2="115" y2="135" stroke="#f87171" stroke-width="4.5" stroke-linecap="round" />
+            <!-- 4. Brazo Derecho -->
+            <line id="part-arm-r" class="hang-part" x1="140" y1="108" x2="165" y2="135" stroke="#f87171" stroke-width="4.5" stroke-linecap="round" />
+            <!-- 5. Pierna Izquierda -->
+            <line id="part-leg-l" class="hang-part" x1="140" y1="150" x2="115" y2="195" stroke="#f87171" stroke-width="4.5" stroke-linecap="round" />
+            <!-- 6. Pierna Derecha -->
+            <line id="part-leg-r" class="hang-part" x1="140" y1="150" x2="165" y2="195" stroke="#f87171" stroke-width="4.5" stroke-linecap="round" />
+          </svg>
+        </div>
+      </div>
+
+      <!-- Right: Hidden word letter slots & hints -->
+      <div class="md:col-span-7 flex flex-col justify-center items-center w-full">
+        <p class="text-xs tracking-wider uppercase text-slate-400 font-semibold mb-3">Palabra Oculta</p>
+        
+        <!-- Word Slots -->
+        <div id="wordContainer" class="flex flex-wrap justify-center gap-2 md:gap-3 py-3 w-full max-h-36 overflow-y-auto">
+          <!-- Rendered dynamically -->
+        </div>
+
+        <p class="text-[11px] text-slate-400 mt-3 flex items-center gap-1.5">
+          <i class="fa-solid fa-keyboard"></i> Los demás jugadores pueden proponer letras desde el teclado o pantalla.
+        </p>
+      </div>
+    </div>
+
+    <!-- Virtual On-screen Keyboard -->
+    <div class="w-full max-w-2xl bg-slate-900/60 p-2 sm:p-3 rounded-2xl border border-slate-800">
+      <div id="keyboard" class="flex flex-col gap-1.5">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="py-2.5 text-center text-[11px] text-slate-500">
+    El Ahorcado Multijugador &bull; Hasta 4 jugadores &bull; Modo Clásico
+  </footer>
+
+  <!-- MODAL 1: Configuración de la partida (Jugadores, Nombres, Meta) -->
+  <div id="matchSetupModal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-3xl p-6 shadow-2xl relative">
+      <div class="text-center mb-5">
+        <div class="w-12 h-12 bg-indigo-500/20 text-indigo-400 rounded-2xl flex items-center justify-center mx-auto mb-2 text-xl font-bold">
+          <i class="fa-solid fa-users"></i>
+        </div>
+        <h2 class="text-2xl font-game font-bold text-white">Configurar Partida</h2>
+        <p class="text-xs text-slate-400">Elige la cantidad de jugadores y la meta de puntos.</p>
+      </div>
+
+      <form id="matchSetupForm" class="space-y-4">
+        <!-- Selector Cantidad de Jugadores -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Cantidad de Jugadores</label>
+          <div class="grid grid-cols-3 gap-2">
+            <button type="button" class="player-count-btn py-2 rounded-xl border border-slate-700 bg-slate-800 text-slate-300 font-game text-base font-bold transition hover:bg-slate-700" data-count="2">2 Jugadores</button>
+            <button type="button" class="player-count-btn py-2 rounded-xl border border-indigo-500 bg-indigo-600 text-white font-game text-base font-bold transition shadow-lg shadow-indigo-600/30" data-count="3">3 Jugadores</button>
+            <button type="button" class="player-count-btn py-2 rounded-xl border border-slate-700 bg-slate-800 text-slate-300 font-game text-base font-bold transition hover:bg-slate-700" data-count="4">4 Jugadores</button>
+          </div>
+        </div>
+
+        <!-- Inputs para Nombres de los Jugadores -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Nombres de los Jugadores</label>
+          <div id="playerNamesInputs" class="space-y-2">
+            <!-- Rellenado dinámicamente -->
+          </div>
+        </div>
+
+        <!-- Meta de puntos para ganar -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5" for="targetPointsInput">
+            Puntos necesarios para ganar
+          </label>
+          <div class="flex items-center gap-3">
+            <input 
+              type="number" 
+              id="targetPointsInput" 
+              min="1" 
+              max="20" 
+              value="3" 
+              class="w-24 px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-center font-game font-bold text-lg text-indigo-400 focus:outline-none focus:border-indigo-500"
+            >
+            <span class="text-xs text-slate-400">El primer jugador en llegar a esta cifra gana la partida entera.</span>
+          </div>
+        </div>
+
+        <button 
+          type="submit" 
+          class="w-full mt-3 py-3 bg-indigo-600 hover:bg-indigo-500 active:scale-[0.99] transition font-game font-semibold text-white rounded-xl shadow-lg shadow-indigo-600/30 text-base flex items-center justify-center gap-2"
+        >
+          <i class="fa-solid fa-arrow-right"></i> Continuar a la Palabra
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 2: Ingreso de Palabra Secreta (El Creador de turno) -->
+  <div id="wordModal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-3xl p-6 shadow-2xl relative">
+      <div class="text-center mb-4">
+        <div class="inline-flex items-center gap-1.5 bg-indigo-500/20 text-indigo-300 px-3 py-1 rounded-full text-xs font-bold uppercase mb-2">
+          <i class="fa-solid fa-user-pen"></i> Turno de <span id="wordAuthorName" class="text-white">Jugador 1</span>
+        </div>
+        <h2 class="text-2xl font-game font-bold text-white">Escribe la Palabra Secreta</h2>
+        <p class="text-xs text-slate-400 mt-1">¡Los demás jugadores no deben mirar la pantalla!</p>
+      </div>
+
+      <form id="wordForm" class="space-y-4">
+        <!-- Input Palabra -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5" for="secretInput">
+            Palabra o Frase Secreta
+          </label>
+          <div class="relative">
+            <input 
+              type="password" 
+              id="secretInput" 
+              required
+              autocomplete="off"
+              spellcheck="false"
+              maxlength="24"
+              placeholder="Ej: ESCUDO" 
+              class="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl focus:outline-none focus:border-indigo-500 text-white font-mono tracking-widest text-lg pr-12 transition uppercase"
+            >
+            <button 
+              type="button" 
+              id="togglePassword" 
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition p-1"
+              title="Mostrar u ocultar"
+            >
+              <i id="eyeIcon" class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+          <p id="inputError" class="text-rose-400 text-xs mt-1.5 hidden flex items-center gap-1">
+            <i class="fa-solid fa-circle-exclamation"></i> Solo se permiten letras y espacios.
+          </p>
+        </div>
+
+        <!-- Input Pista Opcional -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5" for="clueInput">
+            Pista Opcional (ej: Película, País, Objeto)
+          </label>
+          <input 
+            type="text" 
+            id="clueInput" 
+            maxlength="35"
+            placeholder="Opcional..." 
+            class="w-full px-4 py-2 bg-slate-950 border border-slate-800 rounded-xl focus:outline-none focus:border-indigo-500 text-white text-sm transition"
+          >
+        </div>
+
+        <!-- Opción Clásica: Revelar primera y última letra -->
+        <div class="bg-slate-950/70 p-3 rounded-xl border border-slate-800 flex items-center justify-between cursor-pointer" id="classicOptionToggle">
+          <div class="pr-2">
+            <span class="text-xs md:text-sm font-semibold text-slate-200 block">Modo Clásico (E _ _ _ _ O)</span>
+            <span class="text-[11px] text-slate-400 block">Revela automáticamente la primera y última letra.</span>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" id="revealEndsCheck" class="sr-only peer" checked>
+            <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+          </label>
+        </div>
+
+        <!-- Submit Button -->
+        <button 
+          type="submit" 
+          class="w-full mt-2 py-3 bg-indigo-600 hover:bg-indigo-500 active:scale-[0.99] transition font-game font-semibold text-white rounded-xl shadow-lg shadow-indigo-600/30 text-base flex items-center justify-center gap-2"
+        >
+          <i class="fa-solid fa-play"></i> Iniciar Ronda
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 3: Seleccionar quién adivinó la palabra -->
+  <div id="assignWinnerModal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-sm rounded-3xl p-6 shadow-2xl text-center">
+      <div class="w-12 h-12 bg-emerald-500/20 text-emerald-400 rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl font-bold">
+        <i class="fa-solid fa-hand-point-up"></i>
+      </div>
+      <h3 class="text-xl font-game font-bold text-white mb-1">¿Quién adivinó la palabra?</h3>
+      <p class="text-xs text-slate-400 mb-4">El jugador seleccionado sumará +1 punto y será el creador de la siguiente palabra.</p>
+
+      <div id="guesserCandidates" class="flex flex-col gap-2 mb-4">
+        <!-- Lista de jugadores candidatos -->
+      </div>
+
+      <button id="cancelAssignBtn" class="text-xs text-slate-400 hover:text-slate-200 transition py-1">
+        Cancelar
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL 4: Fin de Ronda (Resumen de punto y próximo turno) -->
+  <div id="roundEndModal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-sm rounded-3xl p-6 text-center shadow-2xl">
+      <div id="roundEndIcon" class="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3 text-2xl">
+        <!-- Ícono dinámico -->
+      </div>
+      <h3 id="roundEndTitle" class="text-2xl font-game font-bold text-white mb-1">¡Punto Asignado!</h3>
+      <p id="roundEndDesc" class="text-xs text-slate-300 mb-4">El jugador se lleva +1 punto.</p>
+
+      <div class="bg-slate-950 p-3 rounded-2xl mb-4 border border-slate-800">
+        <span class="text-[10px] text-slate-400 block mb-0.5 uppercase font-semibold">La palabra secreta era:</span>
+        <span id="roundEndRevealedWord" class="font-game text-xl tracking-widest text-indigo-400 font-bold uppercase"></span>
+      </div>
+
+      <div class="bg-slate-800/60 p-2.5 rounded-xl border border-slate-700/60 text-xs text-slate-300 mb-5">
+        <i class="fa-solid fa-feather-pointed text-amber-400 mr-1"></i> Siguiente en escribir: <strong id="nextMasterName" class="text-white"></strong>
+      </div>
+
+      <button id="nextRoundBtn" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 font-semibold rounded-xl text-white shadow-lg shadow-indigo-500/25 transition">
+        Escribir Siguiente Palabra
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL 5: Gran Victoria Final (Fin de la partida completa) -->
+  <div id="matchWinnerModal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 border border-indigo-500/50 w-full max-w-md rounded-3xl p-6 sm:p-8 text-center shadow-2xl relative">
+      <div class="w-20 h-20 bg-amber-500/20 text-amber-400 rounded-3xl flex items-center justify-center mx-auto mb-4 text-4xl shadow-inner border border-amber-500/30">
+        <i class="fa-solid fa-crown animate-bounce"></i>
+      </div>
+      <span class="text-xs uppercase tracking-widest text-indigo-400 font-bold">¡Tenemos un Campeón!</span>
+      <h2 id="matchWinnerName" class="text-3xl sm:text-4xl font-game font-bold text-white my-1">Jugador 1</h2>
+      <p id="matchWinnerScore" class="text-sm text-slate-300 mb-6">Alcanzó la meta de 3 puntos primero.</p>
+
+      <!-- Tabla final de posiciones -->
+      <div class="bg-slate-950/90 rounded-2xl p-4 border border-slate-800 mb-6 text-left">
+        <h4 class="text-xs uppercase font-bold text-slate-400 tracking-wider mb-2">Tabla Final de Puntuaciones</h4>
+        <div id="finalLeaderboard" class="space-y-2">
+          <!-- Clasificación dinámica -->
+        </div>
+      </div>
+
+      <div class="flex gap-2.5">
+        <button id="rematchBtn" class="flex-1 py-3 bg-indigo-600 hover:bg-indigo-500 font-game font-bold rounded-xl text-white shadow-lg shadow-indigo-600/30 transition text-sm">
+          <i class="fa-solid fa-rotate-right mr-1.5"></i> Revancha
+        </button>
+        <button id="newMatchFromWinBtn" class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 font-game font-semibold rounded-xl text-slate-200 border border-slate-700 transition text-sm">
+          Nueva Configuración
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audio Synthesizer (Web Audio API nativa sin enlaces externos) -->
+  <script>
+    class SoundFX {
+      constructor() {
+        this.ctx = null;
+        this.enabled = true;
+      }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioContext();
+        }
+      }
+      playTone(freq, type = 'sine', duration = 0.12, gainVal = 0.1) {
+        if (!this.enabled) return;
+        try {
+          this.init();
+          if (this.ctx.state === 'suspended') this.ctx.resume();
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+          gain.gain.setValueAtTime(gainVal, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + duration);
+        } catch (e) {}
+      }
+      correct() {
+        this.playTone(523.25, 'sine', 0.1, 0.15); // C5
+        setTimeout(() => this.playTone(659.25, 'sine', 0.15, 0.15), 90); // E5
+      }
+      wrong() {
+        this.playTone(220, 'sawtooth', 0.18, 0.12);
+        setTimeout(() => this.playTone(180, 'sawtooth', 0.22, 0.12), 120);
+      }
+      point() {
+        [523, 659, 784].forEach((f, i) => {
+          setTimeout(() => this.playTone(f, 'triangle', 0.15, 0.15), i * 90);
+        });
+      }
+      gameWin() {
+        [440, 554, 659, 880, 1108].forEach((f, i) => {
+          setTimeout(() => this.playTone(f, 'triangle', 0.25, 0.18), i * 110);
+        });
+      }
+      lose() {
+        [240, 200, 170, 130].forEach((f, i) => {
+          setTimeout(() => this.playTone(f, 'sawtooth', 0.22, 0.15), i * 120);
+        });
+      }
+    }
+
+    const sound = new SoundFX();
+
+    // Sound toggle
+    const soundToggleBtn = document.getElementById('soundToggleBtn');
+    const soundIcon = document.getElementById('soundIcon');
+    soundToggleBtn.addEventListener('click', () => {
+      sound.enabled = !sound.enabled;
+      if (sound.enabled) {
+        soundIcon.className = "fa-solid fa-volume-high";
+        sound.playTone(500, 'sine', 0.08);
+      } else {
+        soundIcon.className = "fa-solid fa-volume-xmark text-slate-500";
+      }
+    });
+
+    // -------------------------------------------------------------
+    // Game State
+    // -------------------------------------------------------------
+    let players = [
+      { id: 1, name: "Jugador 1", score: 0 },
+      { id: 2, name: "Jugador 2", score: 0 },
+      { id: 3, name: "Jugador 3", score: 0 }
+    ];
+    let currentMasterIndex = 0; // Índice de quién escribe la palabra secreta
+    let targetScore = 3;
+    let selectedPlayerCount = 3;
+
+    // Ronda actual
+    let secretWord = "";
+    let normalizedSecretWord = "";
+    let guessedLetters = new Set();
+    const maxLives = 6;
+    let mistakes = 0;
+    let isRoundOver = false;
+
+    // SVG elements
+    const hangmanParts = [
+      document.getElementById('part-head'),
+      document.getElementById('part-body'),
+      document.getElementById('part-arm-l'),
+      document.getElementById('part-arm-r'),
+      document.getElementById('part-leg-l'),
+      document.getElementById('part-leg-r')
+    ];
+    const faceElement = document.getElementById('part-face');
+
+    // Spanish Keyboard
+    const KEYBOARD_ROWS = [
+      ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
+      ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Ñ'],
+      ['Z', 'X', 'C', 'V', 'B', 'N', 'M']
+    ];
+
+    function normalizeChar(char) {
+      if (char === 'Ñ' || char === 'ñ') return 'Ñ';
+      return char.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
+    }
+
+    function normalizeText(text) {
+      return text.split('').map(normalizeChar).join('');
+    }
+
+    // -------------------------------------------------------------
+    // Marcador de Puntuaciones
+    // -------------------------------------------------------------
+    const playersScoreContainer = document.getElementById('playersScoreContainer');
+    const currentMasterNameEl = document.getElementById('currentMasterName');
+    const targetGoalHeaderEl = document.getElementById('targetGoalHeader');
+
+    function renderScoreboard() {
+      playersScoreContainer.innerHTML = '';
+      targetGoalHeaderEl.textContent = `Meta: ${targetScore} ${targetScore === 1 ? 'punto' : 'puntos'} para ganar`;
+
+      players.forEach((p, idx) => {
+        const isMaster = idx === currentMasterIndex;
+        const card = document.createElement('div');
+        card.className = `flex items-center gap-2 px-3 py-1 rounded-xl border text-xs sm:text-sm font-medium transition ${
+          isMaster 
+            ? 'bg-indigo-950/80 border-indigo-500/80 text-white shadow-sm ring-1 ring-indigo-500/40' 
+            : 'bg-slate-800/70 border-slate-700/60 text-slate-300'
+        }`;
+
+        card.innerHTML = `
+          <div class="flex items-center gap-1.5">
+            ${isMaster ? '<i class="fa-solid fa-feather text-amber-400 text-xs" title="Creador actual"></i>' : ''}
+            <span class="font-semibold truncate max-w-[90px] sm:max-w-[120px]">${p.name}</span>
+          </div>
+          <span class="font-game font-bold text-sm sm:text-base ${isMaster ? 'text-amber-400' : 'text-slate-100'} bg-slate-900/60 px-2 py-0.5 rounded-lg border border-slate-700/40">${p.score}</span>
+        `;
+        playersScoreContainer.appendChild(card);
+      });
+
+      currentMasterNameEl.textContent = players[currentMasterIndex].name;
+    }
+
+    // -------------------------------------------------------------
+    // Teclado y Palabra
+    // -------------------------------------------------------------
+    const keyboardEl = document.getElementById('keyboard');
+    function initKeyboard() {
+      keyboardEl.innerHTML = '';
+      KEYBOARD_ROWS.forEach(row => {
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'flex justify-center gap-1 sm:gap-1.5';
+        row.forEach(letter => {
+          const btn = document.createElement('button');
+          btn.id = `key-${letter}`;
+          btn.textContent = letter;
+          btn.className = 'key-btn w-8 sm:w-10 h-10 sm:h-11 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-game text-base sm:text-lg font-bold shadow transition flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed';
+          btn.addEventListener('click', () => handleGuess(letter));
+          rowDiv.appendChild(btn);
+        });
+        keyboardEl.appendChild(rowDiv);
+      });
+    }
+
+    const wordContainer = document.getElementById('wordContainer');
+    function renderWord() {
+      wordContainer.innerHTML = '';
+      const letters = secretWord.split('');
+
+      letters.forEach(char => {
+        const slot = document.createElement('div');
+        if (char === ' ') {
+          slot.className = 'letter-slot space-slot';
+          slot.innerHTML = '&nbsp;';
+        } else {
+          const norm = normalizeChar(char);
+          const isGuessed = guessedLetters.has(norm);
+          slot.className = `letter-slot h-11 sm:h-12 flex items-center justify-center text-xl sm:text-2xl font-game font-bold text-white ${isGuessed ? 'filled text-sky-400' : ''}`;
+          slot.textContent = isGuessed ? char.toUpperCase() : '';
+        }
+        wordContainer.appendChild(slot);
+      });
+    }
+
+    function updateDrawing() {
+      hangmanParts.forEach((part, index) => {
+        if (index < mistakes) {
+          part.classList.add('visible');
+        } else {
+          part.classList.remove('visible');
+        }
+      });
+      if (mistakes >= maxLives) {
+        faceElement.classList.add('visible');
+        faceElement.classList.remove('opacity-0');
+      } else {
+        faceElement.classList.remove('visible');
+        faceElement.classList.add('opacity-0');
+      }
+    }
+
+    const livesDisplay = document.getElementById('livesDisplay');
+    function updateLives() {
+      const remaining = maxLives - mistakes;
+      livesDisplay.textContent = `${remaining} / ${maxLives}`;
+      if (remaining <= 2) {
+        livesDisplay.className = "font-game text-lg font-bold text-rose-500 animate-pulse";
+      } else {
+        livesDisplay.className = "font-game text-lg font-bold text-amber-400";
+      }
+    }
+
+    // -------------------------------------------------------------
+    // Lógica de intento (letras)
+    // -------------------------------------------------------------
+    function handleGuess(rawLetter) {
+      if (isRoundOver) return;
+      const letter = normalizeChar(rawLetter);
+      if (guessedLetters.has(letter)) return;
+
+      guessedLetters.add(letter);
+
+      const keyBtn = document.getElementById(`key-${letter}`);
+      const isMatch = normalizedSecretWord.includes(letter);
+
+      if (keyBtn) {
+        keyBtn.disabled = true;
+        if (isMatch) {
+          keyBtn.classList.remove('bg-slate-800', 'hover:bg-slate-700');
+          keyBtn.classList.add('bg-emerald-600', 'text-white', 'shadow-emerald-900/40');
+        } else {
+          keyBtn.classList.remove('bg-slate-800', 'hover:bg-slate-700');
+          keyBtn.classList.add('bg-slate-900', 'text-slate-600', 'line-through');
+        }
+      }
+
+      if (isMatch) {
+        sound.correct();
+        renderWord();
+
+        // Verificar si se completó la palabra por letras
+        const normalizedChars = normalizedSecretWord.replace(/\s+/g, '').split('');
+        const isWordFullyCompleted = normalizedChars.every(char => guessedLetters.has(char));
+        if (isWordFullyCompleted) {
+          // Si son 2 jugadores, sabemos automáticamente quién adivinó (el adivinador)
+          if (players.length === 2) {
+            const guesserIndex = currentMasterIndex === 0 ? 1 : 0;
+            awardPointToGuesser(guesserIndex);
+          } else {
+            // Si son 3 o 4, preguntamos quién dijo la última letra / completó
+            openAssignWinnerModal("¡Palabra completada letra por letra! ¿Quién fue?");
+          }
+        }
+      } else {
+        mistakes++;
+        sound.wrong();
+        updateDrawing();
+        updateLives();
+
+        const gallowsSvg = document.getElementById('hangmanSvg');
+        gallowsSvg.parentElement.classList.add('shake');
+        setTimeout(() => gallowsSvg.parentElement.classList.remove('shake'), 400);
+
+        // Si se completó el ahorcado: nadie adivinó -> punto para el Creador
+        if (mistakes >= maxLives) {
+          isRoundOver = true;
+          sound.lose();
+          setTimeout(() => {
+            awardPointToMasterBecauseFailed();
+          }, 450);
+        }
+      }
+    }
+
+    // Físico teclado
+    window.addEventListener('keydown', (e) => {
+      if (isRoundOver) return;
+      // Verificar que ningún modal esté activo
+      const modals = [matchSetupModal, wordModal, assignWinnerModal, roundEndModal, matchWinnerModal];
+      const anyOpen = modals.some(m => !m.classList.contains('hidden'));
+      if (anyOpen) return;
+
+      const key = e.key.toUpperCase();
+      if (/^[A-ZÑ]$/.test(key)) {
+        handleGuess(key);
+      }
+    });
+
+    // -------------------------------------------------------------
+    // Asignación de Puntos y Fin de Ronda
+    // -------------------------------------------------------------
+    const assignWinnerModal = document.getElementById('assignWinnerModal');
+    const guesserCandidates = document.getElementById('guesserCandidates');
+    const directGuessBtn = document.getElementById('directGuessBtn');
+    const cancelAssignBtn = document.getElementById('cancelAssignBtn');
+
+    directGuessBtn.addEventListener('click', () => {
+      if (isRoundOver) return;
+      if (players.length === 2) {
+        // En 2 jugadores, el único que puede adivinar es el rival
+        const guesserIndex = currentMasterIndex === 0 ? 1 : 0;
+        awardPointToGuesser(guesserIndex);
+      } else {
+        openAssignWinnerModal("¿Quién fue el jugador que adivinó la palabra?");
+      }
+    });
+
+    cancelAssignBtn.addEventListener('click', () => {
+      assignWinnerModal.classList.add('hidden');
+    });
+
+    function openAssignWinnerModal(customTitle) {
+      guesserCandidates.innerHTML = '';
+      if (customTitle) {
+        assignWinnerModal.querySelector('h3').textContent = customTitle;
+      } else {
+        assignWinnerModal.querySelector('h3').textContent = "¿Quién adivinó la palabra?";
+      }
+
+      players.forEach((p, idx) => {
+        // El creador no puede adivinarse a sí mismo
+        if (idx === currentMasterIndex) return;
+
+        const btn = document.createElement('button');
+        btn.className = 'w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-indigo-600 hover:text-white border border-slate-700 font-game font-semibold text-slate-200 transition flex items-center justify-between text-sm group';
+        btn.innerHTML = `
+          <span>${p.name}</span>
+          <span class="text-xs bg-slate-900 group-hover:bg-indigo-700 px-2 py-0.5 rounded-md text-amber-300 font-bold">${p.score} pts</span>
+        `;
+        btn.addEventListener('click', () => {
+          assignWinnerModal.classList.add('hidden');
+          awardPointToGuesser(idx);
+        });
+        guesserCandidates.appendChild(btn);
+      });
+
+      assignWinnerModal.classList.remove('hidden');
+    }
+
+    // Caso A: Un jugador adivinó la palabra
+    function awardPointToGuesser(playerIdx) {
+      isRoundOver = true;
+      players[playerIdx].score += 1;
+      sound.point();
+      renderScoreboard();
+
+      // Verificar si alcanzó el objetivo final del juego
+      if (players[playerIdx].score >= targetScore) {
+        showFinalMatchWinner(players[playerIdx]);
+        return;
+      }
+
+      // Regla: quien adivina, le toca ser el próximo creador
+      const nextMaster = playerIdx;
+      showRoundEndModal({
+        winnerName: players[playerIdx].name,
+        type: 'guesser',
+        nextMasterIdx: nextMaster
+      });
+    }
+
+    // Caso B: Nadie adivinó y el ahorcado cayó (6 fallos) -> punto para el Creador
+    function awardPointToMasterBecauseFailed() {
+      const master = players[currentMasterIndex];
+      master.score += 1;
+      sound.lose();
+      renderScoreboard();
+
+      if (master.score >= targetScore) {
+        showFinalMatchWinner(master);
+        return;
+      }
+
+      // Regla: si nadie adivina, el punto es para el creador y continúa escribiendo
+      showRoundEndModal({
+        winnerName: master.name,
+        type: 'master',
+        nextMasterIdx: currentMasterIndex
+      });
+    }
+
+    // Modal de Fin de Ronda
+    const roundEndModal = document.getElementById('roundEndModal');
+    const roundEndIcon = document.getElementById('roundEndIcon');
+    const roundEndTitle = document.getElementById('roundEndTitle');
+    const roundEndDesc = document.getElementById('roundEndDesc');
+    const roundEndRevealedWord = document.getElementById('roundEndRevealedWord');
+    const nextMasterNameEl = document.getElementById('nextMasterName');
+    const nextRoundBtn = document.getElementById('nextRoundBtn');
+    let pendingNextMaster = 0;
+
+    function showRoundEndModal({ winnerName, type, nextMasterIdx }) {
+      pendingNextMaster = nextMasterIdx;
+      roundEndRevealedWord.textContent = secretWord;
+      nextMasterNameEl.textContent = players[nextMasterIdx].name;
+
+      if (type === 'guesser') {
+        roundEndIcon.className = "w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3 text-2xl bg-emerald-500/20 text-emerald-400";
+        roundEndIcon.innerHTML = '<i class="fa-solid fa-trophy"></i>';
+        roundEndTitle.textContent = `¡Adivinó ${winnerName}!`;
+        roundEndDesc.textContent = `Suma +1 punto y ahora le corresponde escribir la palabra.`;
+      } else {
+        roundEndIcon.className = "w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3 text-2xl bg-rose-500/20 text-rose-400";
+        roundEndIcon.innerHTML = '<i class="fa-solid fa-skull"></i>';
+        roundEndTitle.textContent = `¡Ahorcado! Punto para ${winnerName}`;
+        roundEndDesc.textContent = `Nadie adivinó la palabra. ${winnerName} se anota el punto y sigue escribiendo.`;
+      }
+
+      roundEndModal.classList.remove('hidden');
+    }
+
+    nextRoundBtn.addEventListener('click', () => {
+      roundEndModal.classList.add('hidden');
+      currentMasterIndex = pendingNextMaster;
+      renderScoreboard();
+      openWordModal();
+    });
+
+    // -------------------------------------------------------------
+    // Victoria Final de la Partida
+    // -------------------------------------------------------------
+    const matchWinnerModal = document.getElementById('matchWinnerModal');
+    const matchWinnerName = document.getElementById('matchWinnerName');
+    const matchWinnerScore = document.getElementById('matchWinnerScore');
+    const finalLeaderboard = document.getElementById('finalLeaderboard');
+    const rematchBtn = document.getElementById('rematchBtn');
+    const newMatchFromWinBtn = document.getElementById('newMatchFromWinBtn');
+
+    function showFinalMatchWinner(winnerPlayer) {
+      sound.gameWin();
+      try {
+        confetti({
+          particleCount: 120,
+          spread: 70,
+          origin: { y: 0.6 }
+        });
+      } catch (e) {}
+
+      matchWinnerName.textContent = winnerPlayer.name;
+      matchWinnerScore.textContent = `¡Primer jugador en alcanzar la meta de ${targetScore} puntos!`;
+
+      // Tabla final ordenada por puntuación descendente
+      const sorted = [...players].sort((a, b) => b.score - a.score);
+      finalLeaderboard.innerHTML = '';
+      sorted.forEach((p, idx) => {
+        const item = document.createElement('div');
+        item.className = 'flex items-center justify-between py-1.5 px-3 rounded-xl bg-slate-900 border border-slate-800 text-sm';
+        item.innerHTML = `
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-xs ${idx === 0 ? 'text-amber-400' : 'text-slate-400'}">#${idx + 1}</span>
+            <span class="font-medium text-slate-200">${p.name}</span>
+          </div>
+          <span class="font-game font-bold text-indigo-400">${p.score} pts</span>
+        `;
+        finalLeaderboard.appendChild(item);
+      });
+
+      matchWinnerModal.classList.remove('hidden');
+    }
+
+    // Revancha con los mismos jugadores y meta
+    rematchBtn.addEventListener('click', () => {
+      matchWinnerModal.classList.add('hidden');
+      players.forEach(p => p.score = 0);
+      currentMasterIndex = 0;
+      renderScoreboard();
+      openWordModal();
+    });
+
+    newMatchFromWinBtn.addEventListener('click', () => {
+      matchWinnerModal.classList.add('hidden');
+      openMatchSetup();
+    });
+
+    // -------------------------------------------------------------
+    // MODAL DE INGRESO DE PALABRA
+    // -------------------------------------------------------------
+    const wordModal = document.getElementById('wordModal');
+    const wordForm = document.getElementById('wordForm');
+    const secretInput = document.getElementById('secretInput');
+    const clueInput = document.getElementById('clueInput');
+    const togglePassword = document.getElementById('togglePassword');
+    const eyeIcon = document.getElementById('eyeIcon');
+    const inputError = document.getElementById('inputError');
+    const revealEndsCheck = document.getElementById('revealEndsCheck');
+    const wordAuthorName = document.getElementById('wordAuthorName');
+    const clueBanner = document.getElementById('clueBanner');
+    const clueText = document.getElementById('clueText');
+
+    function openWordModal() {
+      wordModal.classList.remove('hidden');
+      wordAuthorName.textContent = players[currentMasterIndex].name;
+      secretInput.value = '';
+      clueInput.value = '';
+      inputError.classList.add('hidden');
+      secretInput.type = 'password';
+      eyeIcon.className = 'fa-solid fa-eye';
+      setTimeout(() => secretInput.focus(), 150);
+    }
+
+    togglePassword.addEventListener('click', () => {
+      if (secretInput.type === 'password') {
+        secretInput.type = 'text';
+        eyeIcon.className = 'fa-solid fa-eye-slash text-indigo-400';
+      } else {
+        secretInput.type = 'password';
+        eyeIcon.className = 'fa-solid fa-eye text-slate-400';
+      }
+    });
+
+    wordForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const val = secretInput.value.trim();
+      const validPattern = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/;
+
+      if (!val || !validPattern.test(val)) {
+        inputError.classList.remove('hidden');
+        secretInput.focus();
+        return;
+      }
+      inputError.classList.add('hidden');
+
+      startRound(val, clueInput.value, revealEndsCheck.checked);
+    });
+
+    function startRound(word, clue, revealEnds) {
+      secretWord = word.trim().toUpperCase();
+      normalizedSecretWord = normalizeText(secretWord);
+      guessedLetters.clear();
+      mistakes = 0;
+      isRoundOver = false;
+
+      // Banner pista
+      if (clue && clue.trim().length > 0) {
+        clueText.textContent = clue.trim();
+        clueBanner.classList.remove('hidden');
+      } else {
+        clueBanner.classList.add('hidden');
+      }
+
+      // Modo clásico: revelar primera y última letra
+      if (revealEnds) {
+        const trimmedLetters = secretWord.split('').filter(c => c !== ' ');
+        if (trimmedLetters.length >= 1) {
+          const firstChar = normalizeChar(trimmedLetters[0]);
+          const lastChar = normalizeChar(trimmedLetters[trimmedLetters.length - 1]);
+          guessedLetters.add(firstChar);
+          guessedLetters.add(lastChar);
+        }
+      }
+
+      initKeyboard();
+
+      // Deshabilitar teclas ya reveladas
+      guessedLetters.forEach(letter => {
+        const keyBtn = document.getElementById(`key-${letter}`);
+        if (keyBtn) {
+          keyBtn.disabled = true;
+          keyBtn.classList.remove('bg-slate-800', 'hover:bg-slate-700');
+          keyBtn.classList.add('bg-indigo-600', 'text-white');
+        }
+      });
+
+      renderWord();
+      updateDrawing();
+      updateLives();
+      wordModal.classList.add('hidden');
+    }
+
+    // -------------------------------------------------------------
+    // MODAL DE CONFIGURACIÓN DE PARTIDA
+    // -------------------------------------------------------------
+    const matchSetupModal = document.getElementById('matchSetupModal');
+    const matchSetupForm = document.getElementById('matchSetupForm');
+    const playerNamesInputs = document.getElementById('playerNamesInputs');
+    const targetPointsInput = document.getElementById('targetPointsInput');
+    const configMatchBtn = document.getElementById('configMatchBtn');
+    const countButtons = document.querySelectorAll('.player-count-btn');
+
+    function openMatchSetup() {
+      matchSetupModal.classList.remove('hidden');
+      renderPlayerNameInputs(selectedPlayerCount);
+    }
+
+    configMatchBtn.addEventListener('click', openMatchSetup);
+
+    countButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        countButtons.forEach(b => {
+          b.className = 'player-count-btn py-2 rounded-xl border border-slate-700 bg-slate-800 text-slate-300 font-game text-base font-bold transition hover:bg-slate-700';
+        });
+        btn.className = 'player-count-btn py-2 rounded-xl border border-indigo-500 bg-indigo-600 text-white font-game text-base font-bold transition shadow-lg shadow-indigo-600/30';
+        selectedPlayerCount = parseInt(btn.dataset.count);
+        renderPlayerNameInputs(selectedPlayerCount);
+      });
+    });
+
+    function renderPlayerNameInputs(count) {
+      playerNamesInputs.innerHTML = '';
+      for (let i = 1; i <= count; i++) {
+        const existingName = players[i - 1]?.name || `Jugador ${i}`;
+        const row = document.createElement('div');
+        row.className = 'flex items-center gap-2';
+        row.innerHTML = `
+          <span class="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 text-xs font-bold flex items-center justify-center text-slate-300">${i}</span>
+          <input 
+            type="text" 
+            maxlength="15" 
+            id="pNameInput-${i}" 
+            value="${existingName}" 
+            required 
+            class="flex-1 px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm font-semibold text-white focus:outline-none focus:border-indigo-500"
+            placeholder="Nombre Jugador ${i}"
+          >
+        `;
+        playerNamesInputs.appendChild(row);
+      }
+    }
+
+    matchSetupForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const points = parseInt(targetPointsInput.value) || 3;
+      targetScore = Math.max(1, points);
+
+      const newPlayers = [];
+      for (let i = 1; i <= selectedPlayerCount; i++) {
+        const nameVal = document.getElementById(`pNameInput-${i}`).value.trim() || `Jugador ${i}`;
+        newPlayers.push({
+          id: i,
+          name: nameVal,
+          score: 0
+        });
+      }
+
+      players = newPlayers;
+      currentMasterIndex = 0;
+      matchSetupModal.classList.add('hidden');
+      renderScoreboard();
+      openWordModal();
+    });
+
+    // -------------------------------------------------------------
+    // Inicialización al cargar la ventana
+    // -------------------------------------------------------------
+    window.onload = () => {
+      openMatchSetup();
+    };
+  </script>
+</body>
+</html>
