@@ -184,7 +184,7 @@
         <!-- Results Interface (Oculta por defecto) -->
         <div id="results-container" class="hidden space-y-8">
             <div class="bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-10 text-center">
-                <h2 class="text-2xl text-gray-400 font-semibold mb-2">Tu emoción actual es:</h2>
+                <h2 class="text-2xl text-gray-400 font-semibold mb-2">Tu estado emocional actual es:</h2>
                 <div id="result-emotion" class="text-5xl md:text-7xl font-extrabold capitalize mb-2 highlight-text"></div>
                 <div id="result-quadrant-title" class="text-xl text-gray-300 mb-6 font-semibold"></div>
                 
@@ -234,18 +234,18 @@
         const questionBank = [
             // Eje de Placer/Agradabilidad (15)
             { id: 'p1', type: 'pleasantness', inverted: false, text: "Siento una sensación cálida, de bienestar y profunda paz en mi interior." },
-            { id: 'p2', type: 'pleasantness', inverted: false, text: "Percibo mi cuerpo y mente en armonía, sintiéndome afortunado y cómodo con quien soy." },
+            { id: 'p2', type: 'pleasantness', inverted: false, text: "Percibo mi cuerpo y mente en armonía, sintiéndome afortunado(a) y cómodo(a) con quien soy." },
             { id: 'p3', type: 'pleasantness', inverted: true, text: "Me invade una sensación de rechazo, asco o profunda repulsión hacia lo que me rodea." },
             { id: 'p4', type: 'pleasantness', inverted: false, text: "Siento una profunda alegría, ganas de celebrar y optimismo sobre lo que viene." },
             { id: 'p5', type: 'pleasantness', inverted: true, text: "Experimento una profunda tristeza, vacío o sensación de pérdida en el pecho." },
-            { id: 'p6', type: 'pleasantness', inverted: false, text: "Siento que las cosas fluyen bien, me siento seguro, tranquilo y de trato fácil." },
+            { id: 'p6', type: 'pleasantness', inverted: false, text: "Siento que las cosas fluyen bien, me siento seguro(a), tranquilo(a) y de trato fácil." },
             { id: 'p7', type: 'pleasantness', inverted: true, text: "Me invade la frustración, el enojo o la sensación de que las cosas son injustas." },
             { id: 'p8', type: 'pleasantness', inverted: false, text: "Siento gratitud, cariño genuino y una conexión afectiva bonita con mi entorno." },
-            { id: 'p9', type: 'pleasantness', inverted: true, text: "Me siento profundamente decepcionado, de bajón o con un ánimo muy sombrío." },
+            { id: 'p9', type: 'pleasantness', inverted: true, text: "Me siento profundamente decepcionada(o), de bajón o con un ánimo muy sombrío." },
             { id: 'p10', type: 'pleasantness', inverted: false, text: "Siento motivación, inspiración y una chispa creativa muy agradable." },
             { id: 'p11', type: 'pleasantness', inverted: true, text: "Percibo que mi día está nublado por preocupaciones persistentes y sensación de amenaza." },
             { id: 'p12', type: 'pleasantness', inverted: false, text: "Siento orgullo, realización personal y satisfacción por lo logrado." },
-            { id: 'p13', type: 'pleasantness', inverted: true, text: "Me siento solo, incomprendido o con una pesadez emocional agobiante." },
+            { id: 'p13', type: 'pleasantness', inverted: true, text: "Me siento solo(a), incomprendido(a) o con una pesadez emocional agobiante." },
             { id: 'p14', type: 'pleasantness', inverted: false, text: "Siento una paz tan serena que me reconforta plenamente por dentro." },
             { id: 'p15', type: 'pleasantness', inverted: true, text: "Siento que el entorno me supera, experimentando rechazo o aislamiento social." },
 
@@ -256,10 +256,10 @@
             { id: 'e4', type: 'energy', inverted: false, text: "Tengo tanta energía contenida que me siento al borde del colapso, tenso o irritable." },
             { id: 'e5', type: 'energy', inverted: false, text: "Siento que me falta el aire, experimentando pánico, shock o taquicardia leve." },
             { id: 'e6', type: 'energy', inverted: true, text: "Mi nivel de energía es extremadamente bajo, me siento abatido o con cero impulso." },
-            { id: 'e7', type: 'energy', inverted: false, text: "Me siento activo, dinámico, con ganas de moverme y hacer cosas inmediatamente." },
+            { id: 'e7', type: 'energy', inverted: false, text: "Me siento activa(o), dinámica(o), con ganas de moverme y hacer cosas inmediatamente." },
             { id: 'e8', type: 'energy', inverted: true, text: "Siento somnolencia, modorra, pereza o un cansancio generalizado muy calmado." },
-            { id: 'e9', type: 'energy', inverted: false, text: "Siento mi cuerpo en alerta máxima, ansioso, aprensivo y nervioso." },
-            { id: 'e10', type: 'energy', inverted: true, text: "Me siento en calma, sosegado, con la respiración pausada y baja actividad física." },
+            { id: 'e9', type: 'energy', inverted: false, text: "Siento mi cuerpo en alerta máxima, ansioso(a), aprensivo(a) y nervioso(a)." },
+            { id: 'e10', type: 'energy', inverted: true, text: "Me siento en calma, sosegada(o), con la respiración pausada y baja actividad física." },
             { id: 'e11', type: 'energy', inverted: false, text: "Siento una energía eufórica, jubilosas ganas de saltar, reír o gritar de emoción." },
             { id: 'e12', type: 'energy', inverted: true, text: "Siento apatía, aburrimiento o una modorra mental que me inmoviliza levemente." },
             { id: 'e13', type: 'energy', inverted: false, text: "Siento tensión muscular marcada en el cuello, mandíbula o hombros por estrés." },
@@ -270,10 +270,10 @@
         // 20 Cuadrantes Descriptivos
         const quadrants20 = [
             { minX: 1, maxX: 5, minY: 8, maxY: 10, title: "Alta Tensión Displacentera", desc: "Estás experimentando un pico de energía muy alto con sensaciones sumamente desagradables (ansiedad, pánico o rabia). Tu sistema nervioso simpático está disparado. Acción recomendada: Haz respiraciones diafragmáticas largas, toma agua fría y aléjate de estímulos intensos." },
-            { minX: 6, maxX: 10, minY: 8, maxY: 10, title: "Alta Energía Placentera", desc: "Tienes una energía desbordante y positiva. Te sientes alegre, inspirado y con ganas de comerte el mundo. Acción recomendada: Canaliza este impulso hacia la creatividad, el movimiento o comparte tu alegría con tu entorno de forma constructiva." },
+            { minX: 6, maxX: 10, minY: 8, maxY: 10, title: "Alta Energía Placentera", desc: "Tienes una energía desbordante y positiva. Te sientes con alegría, inspirción y con ganas de comerte el mundo. Acción recomendada: Canaliza este impulso hacia la creatividad, el movimiento o comparte tu alegría con tu entorno de forma constructiva." },
             { minX: 1, maxX: 5, minY: 5, maxY: 7, title: "Displacer Moderado-Alto", desc: "Hay una fricción importante en tu día. Sientes tensión o frustración que consume tu energía de forma latente. Acción recomendada: Identifica el gatillante exacto. Escribe lo que te molesta para sacarlo de tu cabeza y haz una pausa activa estirando los músculos." },
             { minX: 6, maxX: 10, minY: 5, maxY: 7, title: "Bienestar Activo", desc: "Tu energía es dinámicamente buena. Estás en un punto óptimo de productividad, motivación y agrado. Acción recomendada: Aprovecha este estado para avanzar en pendientes importantes, planificar proyectos o disfrutar de una conversación estimulante." },
-            { minX: 1, maxX: 5, minY: 3, maxY: 4, title: "Desánimo y Baja Energía", desc: "Tu energía está decayendo hacia zonas de tristeza o desmotivación. Sientes el cuerpo pesado y poco agrado. Acción recomendada: Sé amable contigo mismo. No te exijas de más; permítete procesar la emoción o sal a tomar aire fresco 5 minutos." },
+            { minX: 1, maxX: 5, minY: 3, maxY: 4, title: "Desánimo y Baja Energía", desc: "Tu energía está decayendo hacia zonas de tristeza o desmotivación. Sientes el cuerpo pesado y poco agrado. Acción recomendada: Sé amable contigo. No te exijas de más; permítete procesar la emoción o sal a tomar aire fresco 5 minutos." },
             { minX: 6, maxX: 10, minY: 3, maxY: 4, title: "Calma Positiva", desc: "Te encuentras en un estado de equilibrio apacible. No hay urgencias, solo una agradable sensación de conformidad. Acción recomendada: Disfruta del momento presente, lee un buen libro, toca un instrumento o simplemente descansa sabiendo que todo está en orden." },
             { minX: 1, maxX: 5, minY: 1, maxY: 2, title: "Agotamiento Crítico Displacentero", desc: "Tus baterías están al mínimo absoluto y las sensaciones son pesadas o dolorosas. Estás en un estado límite de fatiga. Acción recomendada: Detén todo. Cierra los ojos, concéntrate únicamente en tu respiración abdominal, busca un espacio seguro y descansa sin culpa." },
             { minX: 6, maxX: 10, minY: 1, maxY: 2, title: "Paz Profunda y Relajación", desc: "Tu energía es muy baja pero el placer interior es máximo. Estás en un estado de relajación profunda o quietud. Acción recomendada: Déjate llevar por el descanso. Es el momento perfecto para recargar energías de forma genuina y sanadora." }
@@ -281,16 +281,16 @@
 
         // 10x10 Matrix Original
         const emotionMatrix = [
-            ["Violenta", "En pánico", "Estresada", "Agitada", "En shock", "Sorprendida", "Alegre", "Contenta", "Jubilosa", "Eufórica"],
-            ["Colérica", "Furiosa", "Frustrada", "Tensa", "Aturdida", "Desmadrada", "De buen humor", "Motivada", "Inspirada", "Jovial"],
-            ["Humeante", "Asustada", "Enojada", "Nerviosa", "Impaciente", "Dinámica", "Animada", "Entusiasmada", "Optimista", "Alborotada"],
-            ["Ansiosa", "Aprensiva", "Preocupada", "Irritada", "Molesta", "Satisfecha", "Feliz", "Concentrada", "Orgullosa", "Emocionada"],
-            ["Rechazada", "Insegura", "Intranquila", "Inquieta", "Fastidiada", "Agradable", "Placentera", "Esperanzada", "Juguetona", "Dichosa"],
-            ["Asqueada", "Sombría", "Decepcionada", "De bajón", "Apática", "Tranquila", "De trato fácil", "Conforme", "Cariñosa", "Realizada"],
-            ["Pesimista", "Malhumorada", "Desanimada", "Triste", "Aburrida", "Calmada", "Segura", "Satisfecha", "Agradecida", "Conmovida"],
-            ["Enajenada", "Miserable", "Solitaria", "Apagada", "Cansada", "Relajada", "Apacible", "Reposada", "Afortunada", "Equilibrada"],
-            ["Afligida", "Deprimida", "Taciturna", "Exhausta", "Fatigada", "Sosegada", "Amable", "Pacífica", "Cómoda", "Desenfadada"],
-            ["Desesperada", "Desmoralizada", "Desolada", "Agotada", "Abatida", "Soñolienta", "Satisfecho", "Serena", "Amigable", "Plácida"]
+            ["Violento", "En pánico", "Estresado", "Agitado", "En shock", "Sorprendido", "Alegre", "Contento", "Jubiloso", "Eufórico"],
+            ["Colérico", "Furioso", "Frustrado", "Tenso", "Aturdido", "Desmadrado", "De buen humor", "Motivado", "Inspirado", "Jovial"],
+            ["Humeante", "Asustado", "Enojado", "Nervioso", "Impaciente", "Dinámico", "Animado", "Entusiasmado", "Optimista", "Alborotado"],
+            ["Ansioso", "Aprensivo", "Preocupado", "Irritado", "Molesto", "Satisfecho", "Feliz", "Concentrado", "Orgulloso", "Emocionado"],
+            ["Rechazado", "Inseguro", "Intranquilo", "Inquieto", "Fastidiado", "Agradable", "Placentero", "Esperanzado", "Juguetona", "Dichoso"],
+            ["Asqueado", "Sombrío", "Decepcionado", "De bajón", "Apático", "Tranquilo", "De trato fácil", "Conforme", "Cariñosa", "Realizado"],
+            ["Pesimista", "Malhumorado", "Desanimado", "Triste", "Aburrido", "Calmado", "Seguro", "Satisfecho", "Agradecido", "Conmovido"],
+            ["Enajenado", "Miserable", "Solitario", "Apagado", "Cansado", "Relajado", "Apacible", "Reposado", "Afortunado", "Equilibrado"],
+            ["Afligido", "Deprimido", "Taciturno", "Exhausto", "Fatigado", "Sosegado", "Amable", "Pacífico", "Cómodo", "Desenfadado"],
+            ["Desesperado", "Desmoralizado", "Desolado", "Agotado", "Abatido", "Soñoliento", "Satisfecho", "Sereno", "Amigable", "Plácido"]
         ];
 
         let currentQuestions = [];
