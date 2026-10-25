@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medidor de Emociones</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #111827; /* Dark theme */
+            color: #f3f4f6;
+        }
+        
+        /* Custom styling for sliders */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            margin-top: -8px;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 6px;
+            cursor: pointer;
+            background: #374151;
+            border-radius: 4px;
+        }
+        input[type=range]:focus {
+            outline: none;
+        }
+        
+        /* Matrix Grid Styles */
+        .emotion-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            grid-template-rows: repeat(10, 1fr);
+            gap: 2px;
+            width: 100%;
+            max-width: 800px;
+            aspect-ratio: 1 / 1;
+            margin: 0 auto;
+        }
+        
+        .grid-cell {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 0.5rem;
+            padding: 2px;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+            color: rgba(255,255,255,0.8);
+            border: 1px solid transparent;
+            overflow: hidden;
+            word-wrap: break-word;
+        }
+
+        @media (min-width: 768px) {
+            .grid-cell { font-size: 0.7rem; }
+        }
+        
+        /* Colors matching the image quadrants roughly */
+        /* Top Left: Oranges / Browns / Dark Reds */
+        .quad-tl { background-color: #d97706; } /* Amber/Orange */
+        .quad-tl:nth-child(-n+30) { background-color: #c2410c; } /* Darker Orange */
+        
+        /* Top Right: Greens */
+        .quad-tr { background-color: #22c55e; } 
+        .quad-tr:nth-child(even) { background-color: #16a34a; }
+        
+        /* Bottom Left: Reds / Pinks */
+        .quad-bl { background-color: #ef4444; }
+        .quad-bl:nth-child(even) { background-color: #be123c; } /* Rose */
+        
+        /* Bottom Right: Yellows */
+        .quad-br { background-color: #eab308; color: #422006;}
+        .quad-br:nth-child(even) { background-color: #facc15; }
+
+        /* Highlighted Cell Animation */
+        .highlighted-cell {
+            border: 3px solid #ffffff;
+            box-shadow: 0 0 15px 5px rgba(255, 255, 255, 0.7);
+            z-index: 10;
+            transform: scale(1.2);
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .highlight-text {
+            background: linear-gradient(to right, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <header class="text-center mb-10">
+            <h1 class="text-4xl md:text-5xl font-extrabold mb-4 highlight-text">Medidor de Emociones</h1>
+            <p class="text-gray-400 text-lg">Descubre exactamente cómo te sientes a través de este breve test.</p>
+        </header>
+
+        <!-- Selección de Duración (Nueva Interfaz) -->
+        <div id="config-container" class="bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-10 mb-8 max-w-2xl mx-auto">
+            <h2 class="text-2xl font-bold text-center mb-6 text-gray-200">Selecciona la duración del test:</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <button onclick="startTest(5)" class="bg-gray-700 hover:bg-gray-600 border border-gray-600 text-left p-4 rounded-xl transition duration-300">
+                    <strong class="block text-blue-400 text-lg mb-1">Corto (5 preguntas)</strong>
+                    <span class="text-sm text-gray-400">Rápido, ideal para emergencias.</span>
+                </button>
+                <button onclick="startTest(10)" class="bg-gray-700 hover:bg-gray-600 border border-blue-500 text-left p-4 rounded-xl transition duration-300">
+                    <strong class="block text-blue-400 text-lg mb-1">Medio (10 preguntas)</strong>
+                    <span class="text-sm text-gray-400">Recomendado. Buen balance.</span>
+                </button>
+                <button onclick="startTest(20)" class="bg-gray-700 hover:bg-gray-600 border border-gray-600 text-left p-4 rounded-xl transition duration-300">
+                    <strong class="block text-blue-400 text-lg mb-1">Medio Largo (20 preg.)</strong>
+                    <span class="text-sm text-gray-400">Mayor profundidad de análisis.</span>
+                </button>
+                <button onclick="startTest(30)" class="bg-gray-700 hover:bg-gray-600 border border-gray-600 text-left p-4 rounded-xl transition duration-300">
+                    <strong class="block text-blue-400 text-lg mb-1">Largo (30 preguntas)</strong>
+                    <span class="text-sm text-gray-400">Inventario completo detallado.</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Interface (Oculta al inicio) -->
+        <div id="test-container" class="hidden bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-10">
+            <div class="flex justify-between items-center mb-6">
+                <p class="text-sm text-gray-400">Selecciona un valor del 1 al 10 (1 = En desacuerdo, 10 = De acuerdo).</p>
+                <button onclick="resetApp()" class="text-sm text-blue-400 hover:text-blue-300 underline">Cambiar duración</button>
+            </div>
+            
+            <form id="emotion-form" class="space-y-8">
+                <!-- Questions will be injected here via JS -->
+                <div id="questions-list" class="space-y-4"></div>
+
+                <div class="pt-6 border-t border-gray-700">
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-8 rounded-xl transition duration-300 shadow-lg hover:shadow-blue-500/50">
+                        Analizar mis emociones
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Results Interface (Oculta por defecto) -->
+        <div id="results-container" class="hidden space-y-8">
+            <div class="bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-10 text-center">
+                <h2 class="text-2xl text-gray-400 font-semibold mb-2">Tu emoción actual es:</h2>
+                <div id="result-emotion" class="text-5xl md:text-7xl font-extrabold capitalize mb-2 highlight-text"></div>
+                <div id="result-quadrant-title" class="text-xl text-gray-300 mb-6 font-semibold"></div>
+                
+                <div class="grid grid-cols-2 gap-4 max-w-lg mx-auto mb-8">
+                    <div class="bg-gray-900 p-4 rounded-xl border border-gray-700">
+                        <p class="text-sm text-gray-400">Nivel de Energía</p>
+                        <p id="result-energy" class="text-2xl font-bold text-blue-400"></p>
+                    </div>
+                    <div class="bg-gray-900 p-4 rounded-xl border border-gray-700">
+                        <p class="text-sm text-gray-400">Nivel de Agradabilidad</p>
+                        <p id="result-pleasantness" class="text-2xl font-bold text-green-400"></p>
+                    </div>
+                </div>
+
+                <div id="result-description" class="text-lg text-gray-300 italic mb-8 max-w-2xl mx-auto bg-gray-900 p-6 rounded-xl border border-gray-700 shadow-inner"></div>
+                
+                <button id="btn-reset" class="bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded-lg transition duration-300 mb-8">
+                    Hacer el test de nuevo
+                </button>
+            </div>
+
+            <!-- Visual Matrix -->
+            <div class="bg-gray-800 rounded-2xl shadow-2xl p-4 md:p-8 overflow-x-auto">
+                <h3 class="text-xl font-semibold mb-6 text-center text-gray-300">Mapa Emocional</h3>
+                
+                <!-- Layout container for labels and grid -->
+                <div class="flex flex-col items-center min-w-[600px]">
+                    <div class="w-full text-center text-sm text-gray-400 mb-2 font-bold tracking-widest">+ ENERGÍA</div>
+                    
+                    <div class="flex items-center w-full justify-center">
+                        <div class="text-sm text-gray-400 mr-4 font-bold tracking-widest" style="writing-mode: vertical-rl; transform: rotate(180deg);">DESAGRADABLE</div>
+                        
+                        <!-- The Grid -->
+                        <div id="matrix-grid" class="emotion-grid bg-gray-900 border-2 border-gray-700"></div>
+                        
+                        <div class="text-sm text-gray-400 ml-4 font-bold tracking-widest" style="writing-mode: vertical-rl;">AGRADABLE</div>
+                    </div>
+                    
+                    <div class="w-full text-center text-sm text-gray-400 mt-2 font-bold tracking-widest">- ENERGÍA</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 1. Banco de 30 Preguntas
+        const questionBank = [
+            // Eje de Placer/Agradabilidad (15)
+            { id: 'p1', type: 'pleasantness', inverted: false, text: "Siento una sensación cálida, de bienestar y profunda paz en mi interior." },
+            { id: 'p2', type: 'pleasantness', inverted: false, text: "Percibo mi cuerpo y mente en armonía, sintiéndome afortunado y cómodo con quien soy." },
+            { id: 'p3', type: 'pleasantness', inverted: true, text: "Me invade una sensación de rechazo, asco o profunda repulsión hacia lo que me rodea." },
+            { id: 'p4', type: 'pleasantness', inverted: false, text: "Siento una profunda alegría, ganas de celebrar y optimismo sobre lo que viene." },
+            { id: 'p5', type: 'pleasantness', inverted: true, text: "Experimento una profunda tristeza, vacío o sensación de pérdida en el pecho." },
+            { id: 'p6', type: 'pleasantness', inverted: false, text: "Siento que las cosas fluyen bien, me siento seguro, tranquilo y de trato fácil." },
+            { id: 'p7', type: 'pleasantness', inverted: true, text: "Me invade la frustración, el enojo o la sensación de que las cosas son injustas." },
+            { id: 'p8', type: 'pleasantness', inverted: false, text: "Siento gratitud, cariño genuino y una conexión afectiva bonita con mi entorno." },
+            { id: 'p9', type: 'pleasantness', inverted: true, text: "Me siento profundamente decepcionado, de bajón o con un ánimo muy sombrío." },
+            { id: 'p10', type: 'pleasantness', inverted: false, text: "Siento motivación, inspiración y una chispa creativa muy agradable." },
+            { id: 'p11', type: 'pleasantness', inverted: true, text: "Percibo que mi día está nublado por preocupaciones persistentes y sensación de amenaza." },
+            { id: 'p12', type: 'pleasantness', inverted: false, text: "Siento orgullo, realización personal y satisfacción por lo logrado." },
+            { id: 'p13', type: 'pleasantness', inverted: true, text: "Me siento solo, incomprendido o con una pesadez emocional agobiante." },
+            { id: 'p14', type: 'pleasantness', inverted: false, text: "Siento una paz tan serena que me reconforta plenamente por dentro." },
+            { id: 'p15', type: 'pleasantness', inverted: true, text: "Siento que el entorno me supera, experimentando rechazo o aislamiento social." },
+
+            // Eje de Energía (15)
+            { id: 'e1', type: 'energy', inverted: false, text: "Siento mi cuerpo lleno de electricidad, con pulsaciones rápidas o tensión acumulada." },
+            { id: 'e2', type: 'energy', inverted: false, text: "Mis pensamientos van a mil por hora, me cuesta frenar la mente o concentrarme." },
+            { id: 'e3', type: 'energy', inverted: true, text: "Siento una fatiga profunda, mis párpados pesan y me cuesta levantarme." },
+            { id: 'e4', type: 'energy', inverted: false, text: "Tengo tanta energía contenida que me siento al borde del colapso, tenso o irritable." },
+            { id: 'e5', type: 'energy', inverted: false, text: "Siento que me falta el aire, experimentando pánico, shock o taquicardia leve." },
+            { id: 'e6', type: 'energy', inverted: true, text: "Mi nivel de energía es extremadamente bajo, me siento abatido o con cero impulso." },
+            { id: 'e7', type: 'energy', inverted: false, text: "Me siento activo, dinámico, con ganas de moverme y hacer cosas inmediatamente." },
+            { id: 'e8', type: 'energy', inverted: true, text: "Siento somnolencia, modorra, pereza o un cansancio generalizado muy calmado." },
+            { id: 'e9', type: 'energy', inverted: false, text: "Siento mi cuerpo en alerta máxima, ansioso, aprensivo y nervioso." },
+            { id: 'e10', type: 'energy', inverted: true, text: "Me siento en calma, sosegado, con la respiración pausada y baja actividad física." },
+            { id: 'e11', type: 'energy', inverted: false, text: "Siento una energía eufórica, jubilosas ganas de saltar, reír o gritar de emoción." },
+            { id: 'e12', type: 'energy', inverted: true, text: "Siento apatía, aburrimiento o una modorra mental que me inmoviliza levemente." },
+            { id: 'e13', type: 'energy', inverted: false, text: "Siento tensión muscular marcada en el cuello, mandíbula o hombros por estrés." },
+            { id: 'e14', type: 'energy', inverted: true, text: "Siento mis extremidades pesadas, con ganas de encerrarme a descansar sin estímulos." },
+            { id: 'e15', type: 'energy', inverted: false, text: "Siento una hiperactividad mental y física impulsiva, me siento agitado." }
+        ];
+
+        // 20 Cuadrantes Descriptivos
+        const quadrants20 = [
+            { minX: 1, maxX: 5, minY: 8, maxY: 10, title: "Alta Tensión Displacentera", desc: "Estás experimentando un pico de energía muy alto con sensaciones sumamente desagradables (ansiedad, pánico o rabia). Tu sistema nervioso simpático está disparado. Acción recomendada: Haz respiraciones diafragmáticas largas, toma agua fría y aléjate de estímulos intensos." },
+            { minX: 6, maxX: 10, minY: 8, maxY: 10, title: "Alta Energía Placentera", desc: "Tienes una energía desbordante y positiva. Te sientes alegre, inspirado y con ganas de comerte el mundo. Acción recomendada: Canaliza este impulso hacia la creatividad, el movimiento o comparte tu alegría con tu entorno de forma constructiva." },
+            { minX: 1, maxX: 5, minY: 5, maxY: 7, title: "Displacer Moderado-Alto", desc: "Hay una fricción importante en tu día. Sientes tensión o frustración que consume tu energía de forma latente. Acción recomendada: Identifica el gatillante exacto. Escribe lo que te molesta para sacarlo de tu cabeza y haz una pausa activa estirando los músculos." },
+            { minX: 6, maxX: 10, minY: 5, maxY: 7, title: "Bienestar Activo", desc: "Tu energía es dinámicamente buena. Estás en un punto óptimo de productividad, motivación y agrado. Acción recomendada: Aprovecha este estado para avanzar en pendientes importantes, planificar proyectos o disfrutar de una conversación estimulante." },
+            { minX: 1, maxX: 5, minY: 3, maxY: 4, title: "Desánimo y Baja Energía", desc: "Tu energía está decayendo hacia zonas de tristeza o desmotivación. Sientes el cuerpo pesado y poco agrado. Acción recomendada: Sé amable contigo mismo. No te exijas de más; permítete procesar la emoción o sal a tomar aire fresco 5 minutos." },
+            { minX: 6, maxX: 10, minY: 3, maxY: 4, title: "Calma Positiva", desc: "Te encuentras en un estado de equilibrio apacible. No hay urgencias, solo una agradable sensación de conformidad. Acción recomendada: Disfruta del momento presente, lee un buen libro, toca un instrumento o simplemente descansa sabiendo que todo está en orden." },
+            { minX: 1, maxX: 5, minY: 1, maxY: 2, title: "Agotamiento Crítico Displacentero", desc: "Tus baterías están al mínimo absoluto y las sensaciones son pesadas o dolorosas. Estás en un estado límite de fatiga. Acción recomendada: Detén todo. Cierra los ojos, concéntrate únicamente en tu respiración abdominal, busca un espacio seguro y descansa sin culpa." },
+            { minX: 6, maxX: 10, minY: 1, maxY: 2, title: "Paz Profunda y Relajación", desc: "Tu energía es muy baja pero el placer interior es máximo. Estás en un estado de relajación profunda o quietud. Acción recomendada: Déjate llevar por el descanso. Es el momento perfecto para recargar energías de forma genuina y sanadora." }
+        ];
+
+        // 10x10 Matrix Original
+        const emotionMatrix = [
+            ["Violenta", "En pánico", "Estresada", "Agitada", "En shock", "Sorprendida", "Alegre", "Contenta", "Jubilosa", "Eufórica"],
+            ["Colérica", "Furiosa", "Frustrada", "Tensa", "Aturdida", "Desmadrada", "De buen humor", "Motivada", "Inspirada", "Jovial"],
+            ["Humeante", "Asustada", "Enojada", "Nerviosa", "Impaciente", "Dinámica", "Animada", "Entusiasmada", "Optimista", "Alborotada"],
+            ["Ansiosa", "Aprensiva", "Preocupada", "Irritada", "Molesta", "Satisfecha", "Feliz", "Concentrada", "Orgullosa", "Emocionada"],
+            ["Rechazada", "Insegura", "Intranquila", "Inquieta", "Fastidiada", "Agradable", "Placentera", "Esperanzada", "Juguetona", "Dichosa"],
+            ["Asqueada", "Sombría", "Decepcionada", "De bajón", "Apática", "Tranquila", "De trato fácil", "Conforme", "Cariñosa", "Realizada"],
+            ["Pesimista", "Malhumorada", "Desanimada", "Triste", "Aburrida", "Calmada", "Segura", "Satisfecha", "Agradecida", "Conmovida"],
+            ["Enajenada", "Miserable", "Solitaria", "Apagada", "Cansada", "Relajada", "Apacible", "Reposada", "Afortunada", "Equilibrada"],
+            ["Afligida", "Deprimida", "Taciturna", "Exhausta", "Fatigada", "Sosegada", "Amable", "Pacífica", "Cómoda", "Desenfadada"],
+            ["Desesperada", "Desmoralizada", "Desolada", "Agotada", "Abatida", "Soñolienta", "Satisfecho", "Serena", "Amigable", "Plácida"]
+        ];
+
+        let currentQuestions = [];
+
+        // 2. Inicialización
+        const questionsList = document.getElementById('questions-list');
+        const matrixGrid = document.getElementById('matrix-grid');
+
+        function renderMatrix() {
+            matrixGrid.innerHTML = '';
+            for (let r = 0; r < 10; r++) {
+                for (let c = 0; c < 10; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'grid-cell';
+                    cell.id = `cell-${r}-${c}`;
+                    cell.innerText = emotionMatrix[r][c];
+                    
+                    if (r < 5 && c < 5) cell.classList.add('quad-tl');
+                    else if (r < 5 && c >= 5) cell.classList.add('quad-tr');
+                    else if (r >= 5 && c < 5) cell.classList.add('quad-bl');
+                    else cell.classList.add('quad-br');
+
+                    matrixGrid.appendChild(cell);
+                }
+            }
+        }
+        renderMatrix();
+
+        function startTest(count) {
+            // Seleccionar aleatoriamente
+            let pleasureQ = questionBank.filter(q => q.type === 'pleasantness').sort(() => 0.5 - Math.random());
+            let energyQ = questionBank.filter(q => q.type === 'energy').sort(() => 0.5 - Math.random());
+            
+            let half = Math.ceil(count / 2);
+            currentQuestions = [...pleasureQ.slice(0, half), ...energyQ.slice(0, count - half)].sort(() => 0.5 - Math.random());
+            
+            renderQuestions();
+
+            document.getElementById('config-container').classList.add('hidden');
+            document.getElementById('test-container').classList.remove('hidden');
+        }
+
+        function renderQuestions() {
+            questionsList.innerHTML = '';
+            currentQuestions.forEach((q, index) => {
+                const div = document.createElement('div');
+                div.className = "bg-gray-900 p-4 md:p-6 rounded-xl border border-gray-700 hover:border-blue-500 transition duration-300";
+                div.innerHTML = `
+                    <div class="flex justify-between items-center mb-4">
+                        <label class="text-md md:text-lg font-medium text-gray-200 w-4/5">${index + 1}. ${q.text}</label>
+                        <span id="val-${q.id}" class="text-2xl font-bold text-blue-400 w-1/5 text-right">5</span>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <span class="text-xs text-gray-500">Desacuerdo</span>
+                        <input type="range" id="${q.id}" min="1" max="10" value="5" class="flex-grow" oninput="updateValue('${q.id}')">
+                        <span class="text-xs text-gray-500">Acuerdo</span>
+                    </div>
+                `;
+                questionsList.appendChild(div);
+            });
+        }
+
+        window.updateValue = function(id) {
+            document.getElementById(`val-${id}`).innerText = document.getElementById(id).value;
+        }
+
+        // 3. Lógica y Cálculo Dinámico
+        document.getElementById('emotion-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            let totalEnergy = 0, countEnergy = 0;
+            let totalPleasure = 0, countPleasure = 0;
+
+            currentQuestions.forEach(q => {
+                let val = parseInt(document.getElementById(q.id).value);
+                if (q.inverted) {
+                    val = 11 - val; // Invierte el valor (1 pasa a 10, 10 pasa a 1)
+                }
+
+                if (q.type === 'energy') {
+                    totalEnergy += val;
+                    countEnergy++;
+                } else {
+                    totalPleasure += val;
+                    countPleasure++;
+                }
+            });
+            
+            let energy = Math.round(totalEnergy / countEnergy);
+            let pleasantness = Math.round(totalPleasure / countPleasure);
+
+            energy = Math.max(1, Math.min(10, energy));
+            pleasantness = Math.max(1, Math.min(10, pleasantness));
+
+            // Mapeo a Coordenadas (0-9)
+            let r = 10 - energy; 
+            let c = pleasantness - 1;
+            let detectedEmotion = emotionMatrix[r][c];
+
+            // Buscar descripción en los 20 cuadrantes
+            let matchedQ = quadrants20.find(q => 
+                pleasantness >= q.minX && pleasantness <= q.maxX && energy >= q.minY && energy <= q.maxY
+            );
+
+            let finalTitle = matchedQ ? matchedQ.title : "Transición Emocional";
+            let finalDesc = matchedQ ? matchedQ.desc : "Te encuentras en un punto de transición sin una polarización extrema de energía o placer.";
+
+            // Display Results
+            document.getElementById('result-emotion').innerText = detectedEmotion;
+            document.getElementById('result-quadrant-title').innerText = `Zona: ${finalTitle}`;
+            document.getElementById('result-energy').innerText = energy + " / 10";
+            document.getElementById('result-pleasantness').innerText = pleasantness + " / 10";
+            document.getElementById('result-description').innerText = finalDesc;
+
+            // Highlight Matrix Cell
+            document.querySelectorAll('.grid-cell').forEach(cell => cell.classList.remove('highlighted-cell'));
+            const targetCell = document.getElementById(`cell-${r}-${c}`);
+            if (targetCell) {
+                targetCell.classList.add('highlighted-cell');
+            }
+
+            // Switch Views
+            document.getElementById('test-container').classList.add('hidden');
+            document.getElementById('results-container').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Botones de Reset
+        document.getElementById('btn-reset').addEventListener('click', function() {
+            resetApp();
+        });
+
+        function resetApp() {
+            document.getElementById('emotion-form').reset();
+            document.getElementById('results-container').classList.add('hidden');
+            document.getElementById('test-container').classList.add('hidden');
+            document.getElementById('config-container').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
