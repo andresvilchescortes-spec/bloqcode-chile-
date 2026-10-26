@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sudoku - Bloqcode</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        .sudoku-board {
+            display: grid;
+            grid-template-columns: repeat(9, 1fr);
+            border: 3px solid #0f172a; /* slate-900 */
+            background-color: #0f172a;
+            gap: 1px;
+            width: 100%;
+            max-width: 450px;
+            aspect-ratio: 1 / 1;
+            margin: 0 auto;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        .sudoku-cell {
+            background-color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            font-weight: 500;
+            color: #334155; /* slate-700 */
+            cursor: pointer;
+            user-select: none;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        @media (min-width: 640px) {
+            .sudoku-cell { font-size: 1.75rem; }
+        }
+
+        /* Separadores gruesos para los cuadrantes 3x3 */
+        .sudoku-cell.border-r-thick { margin-right: 2px; }
+        .sudoku-cell.border-b-thick { margin-bottom: 2px; }
+
+        /* Estados visuales de la celda */
+        .sudoku-cell.given {
+            color: #0f172a; /* slate-900 */
+            font-weight: 700;
+            background-color: #f1f5f9; /* slate-100 */
+        }
+        .sudoku-cell.player-input {
+            color: #2563eb; /* blue-600 */
+            font-weight: 600;
+        }
+        .sudoku-cell.selected {
+            background-color: #bfdbfe !important; /* blue-200 */
+        }
+        .sudoku-cell.highlighted {
+            background-color: #eff6ff; /* blue-50 */
+        }
+        .sudoku-cell.same-number {
+            background-color: #dbeafe; /* blue-100 */
+        }
+        .sudoku-cell.error {
+            background-color: #fee2e2 !important; /* red-100 */
+            color: #dc2626 !important; /* red-600 */
+            animation: shake 0.4s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-2px); }
+            75% { transform: translateX(2px); }
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .modal-animate {
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        /* Loading overlay */
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #2563eb;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center py-6 px-4 sm:py-10">
+
+    <!-- Header y Controles -->
+    <div class="w-full max-w-[450px] mb-6 flex flex-col gap-5">
+        <div id="greeting-container" class="w-full bg-blue-50 border border-blue-100 rounded-lg p-3 text-slate-700 font-medium text-sm text-center shadow-sm hidden">
+            <span id="greeting-text"></span>
+        </div>
+        <div class="flex justify-between items-end">
+            <div>
+                <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight">Sudoku</h1>
+                <p class="text-sm text-slate-500 font-medium mt-1">por Bloqcode</p>
+            </div>
+            <div class="flex flex-col items-end">
+                <span class="text-xs text-slate-400 font-semibold uppercase tracking-wider mb-1">Tiempo</span>
+                <div class="text-xl font-mono font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-lg border border-blue-100 shadow-sm" id="timer">00:00</div>
+            </div>
+        </div>
+        
+        <div class="flex justify-between items-center bg-white p-1.5 rounded-xl shadow-sm border border-slate-200">
+            <div class="relative">
+                <select id="difficulty" class="appearance-none bg-slate-100 hover:bg-slate-200 border-none text-slate-700 font-semibold focus:ring-2 focus:ring-blue-500 cursor-pointer outline-none pl-4 pr-8 py-2 rounded-lg text-sm transition-colors">
+                    <option value="easy">Nivel: Fácil</option>
+                    <option value="medium" selected>Nivel: Medio</option>
+                    <option value="hard">Nivel: Difícil</option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500">
+                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                </div>
+            </div>
+            
+            <button id="new-game-btn" class="flex items-center gap-2 bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Reiniciar
+            </button>
+        </div>
+    </div>
+
+    <!-- Contenedor Relativo para el Tablero y el Loader -->
+    <div class="relative w-full max-w-[450px]">
+        <!-- Pantalla de carga mientras genera -->
+        <div id="loading-overlay" class="absolute inset-0 bg-white bg-opacity-90 z-10 flex flex-col items-center justify-center rounded-sm hidden">
+            <div class="loader mb-3"></div>
+            <p class="text-sm font-medium text-slate-600">Generando tablero...</p>
+        </div>
+
+        <!-- Tablero de Sudoku -->
+        <div id="board" class="sudoku-board rounded-sm overflow-hidden">
+            <!-- Celdas inyectadas por JS -->
+        </div>
+    </div>
+
+    <!-- Teclado Numérico Virtual -->
+    <div class="w-full max-w-[450px] mt-8 grid grid-cols-5 gap-2 sm:gap-3" id="numpad">
+        <button class="num-btn bg-white hover:bg-blue-50 active:bg-blue-100 text-slate-800 font-bold py-3 sm:py-4 rounded-xl shadow border border-slate-200 text-xl sm:text-2xl transition-all" data-val="1">1</button>
+        <button class="num-btn bg-white hover:bg-blue-50 active:bg-blue-100 text-slate-800 font-bold py-3 sm:py-4 rounded-xl shadow border border-slate-200 text-xl sm:text-2xl transition-all" data-val="2">2</button>
+        <button class="num-btn bg-white hover:bg-blue-50 active:bg-blue-100 text-slate-800 font-bold py-3 sm:py-4 rounded-xl shadow border border-slate-200 text-xl sm:text-2xl transition-all" data-val="3">3</button>
+        <button class="num-btn bg-white hover:bg-blue-50 active:bg-blue-100 text-slate-800 font-bold py-3 sm:py-4 rounded-xl shadow border border-slate-200 text-xl sm:text-2xl transition-all" data-val="4">4</button>
+        <button class="num-btn bg-white hover:bg-blue-50 active:bg-blue-100 text-slate-800 font-bold py-3 sm:py-4 rounded-xl shadow border border-slate-200 text-xl sm:text-2xl transition-all" data-val="5">5</button>
+        <button class="num-btn bg-white hover:bg-blue-50 active:bg-blue-100 text-slate-800 font-bold py-3 sm:py-4 rounded-xl shadow border border-slate-200 text-xl sm:text-2xl transition-all" data-val="6">6</button>
+        <button class="num-btn bg-white hover:bg-blue-50 active:bg-blue-100 text-slate-800 font-bold py-3 sm:py-4 rounded-xl shadow border border-slate-200 text-xl sm:text-2xl transition-all" data-val="7">7</button>
+        <button class="num-btn bg-white hover:bg-blue-50 active:bg-blue-100 text-slate-800 font-bold py-3 sm:py-4 rounded-xl shadow border border-slate-200 text-xl sm:text-2xl transition-all" data-val="8">8</button>
+        <button class="num-btn bg-white hover:bg-blue-50 active:bg-blue-100 text-slate-800 font-bold py-3 sm:py-4 rounded-xl shadow border border-slate-200 text-xl sm:text-2xl transition-all" data-val="9">9</button>
+        
+        <!-- Botón de Borrar -->
+        <button class="num-btn bg-slate-200 hover:bg-slate-300 active:bg-slate-400 text-slate-700 font-bold py-3 sm:py-4 rounded-xl shadow border border-slate-300 text-sm transition-all flex items-center justify-center" data-val="0">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M3 12l6.414 6.414a2 2 0 001.414.586H19a2 2 0 002-2V7a2 2 0 00-2-2h-8.172a2 2 0 00-1.414.586L3 12z" />
+            </svg>
+        </button>
+    </div>
+
+    <!-- Modal de Nombre (Primera vez) -->
+    <div id="name-modal" class="fixed inset-0 bg-slate-900 bg-opacity-60 backdrop-blur-sm flex items-center justify-center hidden z-50 px-4">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full text-center modal-animate">
+            <h2 class="text-2xl font-extrabold text-slate-800 mb-2">¡Bienvenido!</h2>
+            <p class="text-slate-600 mb-5 font-medium text-sm">¿Cómo te llamas? (Opcional)</p>
+            <input type="text" id="username-input" maxlength="20" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 mb-5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors" placeholder="Tu nombre">
+            <button id="save-name-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-xl transition-colors shadow-lg hover:shadow-xl">
+                Guardar y Jugar
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal de Victoria -->
+    <div id="victory-modal" class="fixed inset-0 bg-slate-900 bg-opacity-60 backdrop-blur-sm flex items-center justify-center hidden z-50 px-4">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full text-center modal-animate">
+            <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5 shadow-inner">
+                <svg class="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                </svg>
+            </div>
+            <h2 class="text-3xl font-extrabold text-slate-800 mb-2">¡Completado!</h2>
+            <p id="victory-text" class="text-slate-600 mb-6 font-medium">Resolviste el Sudoku en <br><span id="final-time" class="text-2xl font-bold text-blue-600 block mt-2"></span></p>
+            <button id="modal-new-game" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-xl transition-colors shadow-lg hover:shadow-xl">
+                Jugar Nuevo Nivel
+            </button>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * LÓGICA CORE DE SUDOKU Y AUTOGENERACIÓN
+         */
+        const GRID_SIZE = 9;
+        const EMPTY = 0;
+        
+        let board = [];      // Tablero con la solución completa (Backtracking)
+        let puzzle = [];     // Tablero con huecos (Pistas iniciales)
+        let playerGrid = []; // Estado actual de la partida
+        
+        let selectedCell = null;
+        
+        // Cronómetro
+        let timerInterval = null;
+        let secondsElapsed = 0;
+        
+        // Configuración de dificultad (Celdas vacías a remover de 81)
+        const difficulties = {
+            easy: 38,   // ~43 pistas
+            medium: 48, // ~33 pistas
+            hard: 56    // ~25 pistas (cerca de nivel experto)
+        };
+
+        function createEmptyGrid() {
+            return Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(EMPTY));
+        }
+
+        // Verifica si `num` puede ir en [row, col] según las reglas
+        function isValid(grid, row, col, num) {
+            for (let x = 0; x < GRID_SIZE; x++) {
+                if (grid[row][x] === num) return false;
+                if (grid[x][col] === num) return false;
+            }
+            let startRow = row - (row % 3);
+            let startCol = col - (col % 3);
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    if (grid[i + startRow][j + startCol] === num) return false;
+                }
+            }
+            return true;
+        }
+
+        // Backtracking para generar un tablero completo válido aleatorio
+        function fillGrid(grid) {
+            let emptySpot = findEmpty(grid);
+            if (!emptySpot) return true; 
+            
+            let [row, col] = emptySpot;
+            let nums = [1, 2, 3, 4, 5, 6, 7, 8, 9].sort(() => Math.random() - 0.5);
+            
+            for (let num of nums) {
+                if (isValid(grid, row, col, num)) {
+                    grid[row][col] = num;
+                    if (fillGrid(grid)) return true;
+                    grid[row][col] = EMPTY; 
+                }
+            }
+            return false;
+        }
+
+        function findEmpty(grid) {
+            for (let i = 0; i < GRID_SIZE; i++) {
+                for (let j = 0; j < GRID_SIZE; j++) {
+                    if (grid[i][j] === EMPTY) return [i, j];
+                }
+            }
+            return null;
+        }
+
+        // Solver para verificar que al quitar pistas quede SOLUCIÓN ÚNICA
+        function countSolutions(grid, limit = 2) {
+            let emptySpot = findEmpty(grid);
+            if (!emptySpot) return 1;
+
+            let [row, col] = emptySpot;
+            let count = 0;
+
+            for (let num = 1; num <= 9; num++) {
+                if (isValid(grid, row, col, num)) {
+                    grid[row][col] = num;
+                    count += countSolutions(grid, limit);
+                    grid[row][col] = EMPTY; 
+                    if (count >= limit) return count; 
+                }
+            }
+            return count;
+        }
+
+        // Genera el juego final basado en dificultad
+        async function generateSudokuAsync(difficultyLevel) {
+            return new Promise((resolve) => {
+                // Pequeño timeout para permitir que el DOM muestre el "Loader"
+                setTimeout(() => {
+                    board = createEmptyGrid();
+                    fillGrid(board);
+                    
+                    puzzle = board.map(row => [...row]);
+                    let cellsToRemove = difficulties[difficultyLevel];
+                    let attempts = cellsToRemove + 15; 
+                    
+                    while (cellsToRemove > 0 && attempts > 0) {
+                        let row = Math.floor(Math.random() * GRID_SIZE);
+                        let col = Math.floor(Math.random() * GRID_SIZE);
+                        
+                        if (puzzle[row][col] !== EMPTY) {
+                            let backup = puzzle[row][col];
+                            puzzle[row][col] = EMPTY;
+                            
+                            let copy = puzzle.map(r => [...r]);
+                            if (countSolutions(copy) !== 1) {
+                                puzzle[row][col] = backup; // Deshacer si rompe unicidad
+                            } else {
+                                cellsToRemove--;
+                            }
+                        }
+                        attempts--;
+                    }
+                    
+                    playerGrid = puzzle.map(row => [...row]);
+                    resolve();
+                }, 50);
+            });
+        }
+
+        /**
+         * INTERFAZ DE USUARIO Y RENDERIZADO
+         */
+        const boardElement = document.getElementById('board');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        
+        function renderBoard() {
+            boardElement.innerHTML = '';
+            for (let r = 0; r < GRID_SIZE; r++) {
+                for (let c = 0; c < GRID_SIZE; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'sudoku-cell';
+                    cell.dataset.row = r;
+                    cell.dataset.col = c;
+                    
+                    // Divisiones 3x3
+                    if ((c + 1) % 3 === 0 && c !== 8) cell.classList.add('border-r-thick');
+                    if ((r + 1) % 3 === 0 && r !== 8) cell.classList.add('border-b-thick');
+                    
+                    const val = playerGrid[r][c];
+                    
+                    if (puzzle[r][c] !== EMPTY) {
+                        cell.classList.add('given');
+                        cell.textContent = puzzle[r][c];
+                    } else if (val !== EMPTY) {
+                        cell.textContent = val;
+                        cell.classList.add('player-input');
+                    }
+                    
+                    // Eventos táctiles y ratón
+                    const handleSelect = (e) => {
+                        e.preventDefault();
+                        selectCell(r, c);
+                    };
+                    cell.addEventListener('mousedown', handleSelect);
+                    cell.addEventListener('touchstart', handleSelect);
+                    
+                    boardElement.appendChild(cell);
+                }
+            }
+            updateVisuals();
+        }
+
+        function selectCell(r, c) {
+            selectedCell = { r, c };
+            updateVisuals();
+        }
+
+        // Detección de colisiones visual en tiempo real
+        function isCollision(row, col, num) {
+            for (let i = 0; i < GRID_SIZE; i++) {
+                if (i !== col && playerGrid[row][i] === num) return true;
+                if (i !== row && playerGrid[i][col] === num) return true;
+            }
+            let startRow = row - (row % 3);
+            let startCol = col - (col % 3);
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    let r = i + startRow;
+                    let c = j + startCol;
+                    if ((r !== row || c !== col) && playerGrid[r][c] === num) return true;
+                }
+            }
+            return false;
+        }
+
+        function updateVisuals() {
+            const cells = document.querySelectorAll('.sudoku-cell');
+            cells.forEach(cell => {
+                cell.classList.remove('selected', 'highlighted', 'same-number', 'error');
+                const row = parseInt(cell.dataset.row);
+                const col = parseInt(cell.dataset.col);
+                const val = playerGrid[row][col];
+                
+                if (selectedCell) {
+                    const { r: selR, c: selC } = selectedCell;
+                    const selVal = playerGrid[selR][selC];
+                    
+                    // 1. Celda seleccionada
+                    if (row === selR && col === selC) {
+                        cell.classList.add('selected');
+                    } 
+                    // 2. Resaltado en cruz y subcuadrícula
+                    else if (row === selR || col === selC || 
+                        (Math.floor(row/3) === Math.floor(selR/3) && Math.floor(col/3) === Math.floor(selC/3))) {
+                        cell.classList.add('highlighted');
+                    }
+                    
+                    // 3. Resaltar todos los números iguales al seleccionado
+                    if (selVal !== EMPTY && val === selVal && !(row === selR && col === selC)) {
+                        cell.classList.add('same-number');
+                    }
+                }
+                
+                // 4. Colisiones (Errores)
+                if (val !== EMPTY && isCollision(row, col, val)) {
+                    cell.classList.add('error');
+                }
+            });
+        }
+
+        function handleInput(num) {
+            if (!selectedCell) return;
+            const { r, c } = selectedCell;
+            
+            // Proteger celdas iniciales
+            if (puzzle[r][c] !== EMPTY) return;
+            
+            // Si el mismo número se presiona, lo borra (toggle)
+            if (playerGrid[r][c] === num && num !== EMPTY) {
+                num = EMPTY;
+            }
+            
+            playerGrid[r][c] = num;
+            
+            // Actualización optimizada del DOM
+            const index = r * GRID_SIZE + c;
+            const cell = boardElement.children[index];
+            
+            // Reiniciar la animación de error eliminando y re-añadiendo el elemento (truco DOM)
+            cell.classList.remove('error');
+            void cell.offsetWidth; 
+            
+            cell.textContent = num === EMPTY ? '' : num;
+            if (num !== EMPTY) cell.classList.add('player-input');
+            
+            updateVisuals();
+            checkWin();
+        }
+
+        function checkWin() {
+            let isFull = true;
+            let hasError = false;
+            
+            for (let r = 0; r < GRID_SIZE; r++) {
+                for (let c = 0; c < GRID_SIZE; c++) {
+                    let val = playerGrid[r][c];
+                    if (val === EMPTY) {
+                        isFull = false;
+                    } else if (isCollision(r, c, val) || val !== board[r][c]) {
+                        hasError = true;
+                    }
+                }
+            }
+            
+            if (isFull && !hasError) {
+                clearInterval(timerInterval);
+                selectedCell = null;
+                updateVisuals();
+                
+                // Lógica de LocalStorage para mejor tiempo
+                const currentBest = localStorage.getItem('sudoku_best_time');
+                const finalTimeStr = formatTime(secondsElapsed);
+                const victoryTextObj = document.getElementById('victory-text');
+                
+                if (!currentBest || secondsElapsed < parseInt(currentBest)) {
+                    localStorage.setItem('sudoku_best_time', secondsElapsed);
+                    updateGreeting(); // Actualizar cabecera
+                    victoryTextObj.innerHTML = `¡Nuevo récord! <br><span class="text-2xl font-bold text-blue-600 block mt-2">${finalTimeStr}</span>`;
+                } else {
+                    victoryTextObj.innerHTML = `Resolviste el Sudoku en <br><span class="text-2xl font-bold text-blue-600 block mt-2">${finalTimeStr}</span>`;
+                }
+                
+                document.getElementById('victory-modal').classList.remove('hidden');
+            }
+        }
+
+        /**
+         * CRONÓMETRO Y CONTROLES GENERALES
+         */
+        function formatTime(seconds) {
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
+            const s = (seconds % 60).toString().padStart(2, '0');
+            if (h > 0) return `${h}:${m}:${s}`;
+            return `${m}:${s}`;
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            secondsElapsed = 0;
+            document.getElementById('timer').textContent = "00:00";
+            timerInterval = setInterval(() => {
+                secondsElapsed++;
+                document.getElementById('timer').textContent = formatTime(secondsElapsed);
+            }, 1000);
+        }
+
+        async function startNewGame() {
+            document.getElementById('victory-modal').classList.add('hidden');
+            clearInterval(timerInterval);
+            document.getElementById('timer').textContent = "00:00";
+            selectedCell = null;
+            
+            const diff = document.getElementById('difficulty').value;
+            
+            loadingOverlay.classList.remove('hidden');
+            
+            // Pequeña pausa para permitir el reflow del loader
+            await new Promise(r => setTimeout(r, 10)); 
+            
+            await generateSudokuAsync(diff);
+            
+            renderBoard();
+            loadingOverlay.classList.add('hidden');
+            startTimer();
+        }
+
+        // Controles Teclado Físico
+        window.addEventListener('keydown', (e) => {
+            if (e.key >= '1' && e.key <= '9') {
+                handleInput(parseInt(e.key));
+            } else if (e.key === 'Backspace' || e.key === 'Delete' || e.key === '0' || e.key === 'Escape') {
+                handleInput(EMPTY);
+            } else if (selectedCell) {
+                let { r, c } = selectedCell;
+                if (e.key === 'ArrowUp') r = Math.max(0, r - 1);
+                else if (e.key === 'ArrowDown') r = Math.min(8, r + 1);
+                else if (e.key === 'ArrowLeft') c = Math.max(0, c - 1);
+                else if (e.key === 'ArrowRight') c = Math.min(8, c + 1);
+                
+                if (r !== selectedCell.r || c !== selectedCell.c) selectCell(r, c);
+            }
+        });
+
+        // Controles Teclado Virtual
+        document.querySelectorAll('.num-btn').forEach(btn => {
+            const triggerInput = (e) => {
+                e.preventDefault(); 
+                handleInput(parseInt(e.currentTarget.dataset.val));
+            };
+            btn.addEventListener('mousedown', triggerInput);
+            btn.addEventListener('touchstart', triggerInput, {passive: false});
+        });
+
+        // Eventos Globales
+        document.getElementById('new-game-btn').addEventListener('click', startNewGame);
+        document.getElementById('modal-new-game').addEventListener('click', startNewGame);
+        document.getElementById('difficulty').addEventListener('change', startNewGame);
+
+        // Lógica de Usuario y LocalStorage
+        function updateGreeting() {
+            const name = localStorage.getItem('sudoku_username');
+            const bestTime = localStorage.getItem('sudoku_best_time');
+            const container = document.getElementById('greeting-container');
+            const textElement = document.getElementById('greeting-text');
+            
+            let greeting = 'Hola';
+            if (name && name.trim() !== '') {
+                greeting += ` ${name}`;
+            }
+            
+            if (bestTime) {
+                greeting += `, tu mejor tiempo es: ${formatTime(parseInt(bestTime))}`;
+            }
+            
+            textElement.textContent = greeting;
+            container.classList.remove('hidden');
+        }
+
+        function initUser() {
+            const storedName = localStorage.getItem('sudoku_username');
+            if (storedName === null) {
+                document.getElementById('name-modal').classList.remove('hidden');
+            } else {
+                updateGreeting();
+            }
+        }
+
+        document.getElementById('save-name-btn').addEventListener('click', () => {
+            const name = document.getElementById('username-input').value.trim();
+            localStorage.setItem('sudoku_username', name);
+            document.getElementById('name-modal').classList.add('hidden');
+            updateGreeting();
+        });
+
+        // Deseleccionar al clickear fuera
+        document.addEventListener('mousedown', (e) => {
+            const isClickInside = boardElement.contains(e.target) || 
+                                  document.getElementById('numpad').contains(e.target) ||
+                                  document.getElementById('victory-modal').contains(e.target) ||
+                                  document.getElementById('name-modal').contains(e.target);
+            if (!isClickInside) {
+                selectedCell = null;
+                updateVisuals();
+            }
+        });
+        
+        document.addEventListener('touchstart', (e) => {
+            const isClickInside = boardElement.contains(e.target) || 
+                                  document.getElementById('numpad').contains(e.target) ||
+                                  document.getElementById('victory-modal').contains(e.target) ||
+                                  document.getElementById('name-modal').contains(e.target) ||
+                                  e.target.tagName === 'SELECT' ||
+                                  e.target.tagName === 'BUTTON' ||
+                                  e.target.tagName === 'INPUT';
+            if (!isClickInside) {
+                selectedCell = null;
+                updateVisuals();
+            }
+        });
+
+        // Arrancar juego al cargar la página
+        initUser();
+        startNewGame();
+    </script>
+</body>
+</html>
