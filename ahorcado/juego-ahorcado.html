@@ -70,7 +70,7 @@
       <div class="flex items-center space-x-3">
         <span class="text-2xl text-amber-400"><i class="fa-solid fa-skull-crossbones"></i></span>
         <div>
-          <h1 class="text-lg md:text-xl font-game font-bold tracking-wide text-white leading-tight">El Ahorcado Multijugador</h1>
+          <h1 class="text-lg md:text-xl font-game font-bold tracking-wide text-white leading-tight">El Ahorcado</h1>
           <p id="targetGoalHeader" class="text-xs text-indigo-300 font-medium">Meta: 3 puntos para ganar</p>
         </div>
       </div>
@@ -182,7 +182,7 @@
         </div>
 
         <p class="text-[11px] text-slate-400 mt-3 flex items-center gap-1.5">
-          <i class="fa-solid fa-keyboard"></i> Los demás jugadores pueden proponer letras desde el teclado o pantalla.
+          <i class="fa-solid fa-keyboard"></i> Utiliza el teclado o presiona las letras en pantalla.
         </p>
       </div>
     </div>
@@ -198,12 +198,12 @@
 
   <!-- Footer -->
   <footer class="py-2.5 text-center text-[11px] text-slate-500">
-    El Ahorcado Multijugador &bull; Hasta 4 jugadores &bull; Modo Clásico
+    El Ahorcado &bull; Modo CPU o Multijugador (Hasta 4 jugadores)
   </footer>
 
   <!-- MODAL 1: Configuración de la partida (Jugadores, Nombres, Meta) -->
   <div id="matchSetupModal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-3xl p-6 shadow-2xl relative">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-lg rounded-3xl p-6 shadow-2xl relative">
       <div class="text-center mb-5">
         <div class="w-12 h-12 bg-indigo-500/20 text-indigo-400 rounded-2xl flex items-center justify-center mx-auto mb-2 text-xl font-bold">
           <i class="fa-solid fa-users"></i>
@@ -215,18 +215,19 @@
       <form id="matchSetupForm" class="space-y-4">
         <!-- Selector Cantidad de Jugadores -->
         <div>
-          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Cantidad de Jugadores</label>
-          <div class="grid grid-cols-3 gap-2">
-            <button type="button" class="player-count-btn py-2 rounded-xl border border-slate-700 bg-slate-800 text-slate-300 font-game text-base font-bold transition hover:bg-slate-700" data-count="2">2 Jugadores</button>
-            <button type="button" class="player-count-btn py-2 rounded-xl border border-indigo-500 bg-indigo-600 text-white font-game text-base font-bold transition shadow-lg shadow-indigo-600/30" data-count="3">3 Jugadores</button>
-            <button type="button" class="player-count-btn py-2 rounded-xl border border-slate-700 bg-slate-800 text-slate-300 font-game text-base font-bold transition hover:bg-slate-700" data-count="4">4 Jugadores</button>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Modo de Juego</label>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+            <button type="button" class="player-count-btn py-2 rounded-xl border border-slate-700 bg-slate-800 text-slate-300 font-game text-sm font-bold transition hover:bg-slate-700" data-count="1">1 Jugador <br><span class="text-[10px] font-normal text-slate-400">(vs CPU)</span></button>
+            <button type="button" class="player-count-btn py-2 rounded-xl border border-slate-700 bg-slate-800 text-slate-300 font-game text-sm font-bold transition hover:bg-slate-700" data-count="2">2 Jugadores</button>
+            <button type="button" class="player-count-btn py-2 rounded-xl border border-indigo-500 bg-indigo-600 text-white font-game text-sm font-bold transition shadow-lg shadow-indigo-600/30" data-count="3">3 Jugadores</button>
+            <button type="button" class="player-count-btn py-2 rounded-xl border border-slate-700 bg-slate-800 text-slate-300 font-game text-sm font-bold transition hover:bg-slate-700" data-count="4">4 Jugadores</button>
           </div>
         </div>
 
         <!-- Inputs para Nombres de los Jugadores -->
         <div>
           <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Nombres de los Jugadores</label>
-          <div id="playerNamesInputs" class="space-y-2">
+          <div id="playerNamesInputs" class="space-y-2 max-h-40 overflow-y-auto pr-2">
             <!-- Rellenado dinámicamente -->
           </div>
         </div>
@@ -253,7 +254,7 @@
           type="submit" 
           class="w-full mt-3 py-3 bg-indigo-600 hover:bg-indigo-500 active:scale-[0.99] transition font-game font-semibold text-white rounded-xl shadow-lg shadow-indigo-600/30 text-base flex items-center justify-center gap-2"
         >
-          <i class="fa-solid fa-arrow-right"></i> Continuar a la Palabra
+          <i class="fa-solid fa-arrow-right"></i> Iniciar Partida
         </button>
       </form>
     </div>
@@ -376,7 +377,7 @@
       </div>
 
       <button id="nextRoundBtn" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 font-semibold rounded-xl text-white shadow-lg shadow-indigo-500/25 transition">
-        Escribir Siguiente Palabra
+        Siguiente Ronda
       </button>
     </div>
   </div>
@@ -412,6 +413,63 @@
 
   <!-- Audio Synthesizer (Web Audio API nativa sin enlaces externos) -->
   <script>
+    // -------------------------------------------------------------
+    // BASE DE DATOS CPU (50 Palabras)
+    // -------------------------------------------------------------
+    const WORDS_DB = [
+      { w: "FOTOSINTESIS", c: "Proceso vegetal para transformar luz solar en energía química." },
+      { w: "ATMOSFERA", c: "Capa gaseosa que envuelve y protege un planeta." },
+      { w: "RELAMPAGO", c: "Resplandor vivo producido por una descarga eléctrica." },
+      { w: "GLACIAR", c: "Enorme masa de hielo que se desplaza lentamente." },
+      { w: "ECLIPSE", c: "Ocultación transitoria de un astro por la interposición de otro." },
+      { w: "FOSIL", c: "Resto petrificado de un organismo prehistórico." },
+      { w: "VOLCAN", c: "Abertura terrestre por donde emerge magma y ceniza." },
+      { w: "CLOROFILA", c: "Pigmento responsable del color verde en las plantas." },
+      { w: "AURORA", c: "Fenómeno lumínico polar causado por partículas solares." },
+      { w: "ARRECIFE", c: "Estructura submarina formada por corales." },
+      { w: "BRUJULA", c: "Instrumento con aguja imantada que señala el norte." },
+      { w: "TELESCOPIO", c: "Aparato óptico para observar objetos espaciales." },
+      { w: "CATALEJO", c: "Tubo telescópico portátil usado por navegantes." },
+      { w: "YUNQUE", c: "Bloque macizo de hierro donde se forjan metales." },
+      { w: "SEMAFORO", c: "Dispositivo luminoso que regula el tráfico." },
+      { w: "PARAGUAS", c: "Artefacto portátil para protegerse de la lluvia." },
+      { w: "CANDADO", c: "Cerradura suelta y portátil protegida por un grillete." },
+      { w: "LINTERNA", c: "Dispositivo portátil que emite luz." },
+      { w: "MICROSCOPIO", c: "Instrumento para visualizar elementos invisibles al ojo." },
+      { w: "RELOJ", c: "Instrumento mecánico o digital para medir el tiempo." },
+      { w: "ARCHIPIELAGO", c: "Grupo numeroso de islas dispersas en el mar." },
+      { w: "PENINSULA", c: "Extensión de tierra rodeada de agua excepto por un istmo." },
+      { w: "DESIERTO", c: "Bioma de precipitaciones mínimas y aridez extrema." },
+      { w: "ACANTILADO", c: "Escarpe casi vertical en la costa rocosa." },
+      { w: "LABERINTO", c: "Lugar intrincado de calles de difícil salida." },
+      { w: "CAVERNA", c: "Cavidad profunda y natural subterránea." },
+      { w: "ESTUARIO", c: "Desembocadura de un río donde se mezclan aguas." },
+      { w: "CORDILLERA", c: "Sucesión continuada de montañas alineadas." },
+      { w: "OASIS", c: "Paraje con vegetación y agua en medio de un desierto." },
+      { w: "FARO", c: "Torre costera con luz potente para orientar naves." },
+      { w: "PARADOJA", c: "Idea que contradice la lógica común pero tiene sentido." },
+      { w: "NOSTALGIA", c: "Pena o anhelo por un recuerdo del pasado." },
+      { w: "METAFORA", c: "Figura retórica que traslada el sentido de una palabra." },
+      { w: "INCERTIDUMBRE", c: "Falta de seguridad sobre algo futuro." },
+      { w: "EQUILIBRIO", c: "Estado de balance armónico entre fuerzas opuestas." },
+      { w: "SINCRONIA", c: "Coincidencia en el tiempo de dos hechos." },
+      { w: "UTOPIA", c: "Plan o sociedad ideal que parece inalcanzable." },
+      { w: "LABERINTICO", c: "Confuso, enredado y difícil de desentrañar." },
+      { w: "METAMORFOSIS", c: "Transformación profunda de un ser o cosa." },
+      { w: "EPIFANIA", c: "Revelación repentina e intuitiva de algo." },
+      { w: "ORNITORRINCO", c: "Mamífero semiacuático ovíparo con pico de pato." },
+      { w: "CAMALEON", c: "Reptil conocido por cambiar de color." },
+      { w: "LUCIERNAGA", c: "Insecto capaz de emitir luz en la oscuridad." },
+      { w: "FLAMENCO", c: "Ave zancuda rosada que descansa sobre una pata." },
+      { w: "GUEPARDO", c: "Felino terrestre muy veloz." },
+      { w: "PANGOLIN", c: "Mamífero acorazado que se enrolla en bola." },
+      { w: "DELFIN", c: "Cetáceo marino que se orienta por ecolocalización." },
+      { w: "MURCIELAGO", c: "Único mamífero capaz de vuelo sostenido." },
+      { w: "ESCORPION", c: "Arácnido con cola curva y aguijón." },
+      { w: "COLIBRI", c: "Ave diminuta capaz de volar hacia atrás." }
+    ];
+    let usedCPUWordsList = []; // Para no repetir palabras en una sesión
+
     class SoundFX {
       constructor() {
         this.ctx = null;
@@ -483,14 +541,11 @@
     // -------------------------------------------------------------
     // Game State
     // -------------------------------------------------------------
-    let players = [
-      { id: 1, name: "Jugador 1", score: 0 },
-      { id: 2, name: "Jugador 2", score: 0 },
-      { id: 3, name: "Jugador 3", score: 0 }
-    ];
-    let currentMasterIndex = 0; // Índice de quién escribe la palabra secreta
+    let players = [];
+    let currentMasterIndex = 0;
     let targetScore = 3;
     let selectedPlayerCount = 3;
+    let isCPUGame = false;
 
     // Ronda actual
     let secretWord = "";
@@ -533,6 +588,7 @@
     const playersScoreContainer = document.getElementById('playersScoreContainer');
     const currentMasterNameEl = document.getElementById('currentMasterName');
     const targetGoalHeaderEl = document.getElementById('targetGoalHeader');
+    const directGuessBtn = document.getElementById('directGuessBtn');
 
     function renderScoreboard() {
       playersScoreContainer.innerHTML = '';
@@ -558,6 +614,13 @@
       });
 
       currentMasterNameEl.textContent = players[currentMasterIndex].name;
+      
+      // Ocultar el botón de adivinar directo si es un juego 1 vs CPU
+      if (isCPUGame) {
+        directGuessBtn.classList.add('hidden');
+      } else {
+        directGuessBtn.classList.remove('hidden');
+      }
     }
 
     // -------------------------------------------------------------
@@ -660,13 +723,14 @@
         // Verificar si se completó la palabra por letras
         const normalizedChars = normalizedSecretWord.replace(/\s+/g, '').split('');
         const isWordFullyCompleted = normalizedChars.every(char => guessedLetters.has(char));
+        
         if (isWordFullyCompleted) {
-          // Si son 2 jugadores, sabemos automáticamente quién adivinó (el adivinador)
-          if (players.length === 2) {
+          if (isCPUGame) {
+            awardPointToGuesser(1); // El humano siempre es Index 1
+          } else if (players.length === 2) {
             const guesserIndex = currentMasterIndex === 0 ? 1 : 0;
             awardPointToGuesser(guesserIndex);
           } else {
-            // Si son 3 o 4, preguntamos quién dijo la última letra / completó
             openAssignWinnerModal("¡Palabra completada letra por letra! ¿Quién fue?");
           }
         }
@@ -710,13 +774,12 @@
     // -------------------------------------------------------------
     const assignWinnerModal = document.getElementById('assignWinnerModal');
     const guesserCandidates = document.getElementById('guesserCandidates');
-    const directGuessBtn = document.getElementById('directGuessBtn');
     const cancelAssignBtn = document.getElementById('cancelAssignBtn');
 
     directGuessBtn.addEventListener('click', () => {
-      if (isRoundOver) return;
+      if (isRoundOver || isCPUGame) return; // Desactivado para vs CPU
+
       if (players.length === 2) {
-        // En 2 jugadores, el único que puede adivinar es el rival
         const guesserIndex = currentMasterIndex === 0 ? 1 : 0;
         awardPointToGuesser(guesserIndex);
       } else {
@@ -737,7 +800,6 @@
       }
 
       players.forEach((p, idx) => {
-        // El creador no puede adivinarse a sí mismo
         if (idx === currentMasterIndex) return;
 
         const btn = document.createElement('button');
@@ -756,21 +818,20 @@
       assignWinnerModal.classList.remove('hidden');
     }
 
-    // Caso A: Un jugador adivinó la palabra
     function awardPointToGuesser(playerIdx) {
       isRoundOver = true;
       players[playerIdx].score += 1;
       sound.point();
       renderScoreboard();
 
-      // Verificar si alcanzó el objetivo final del juego
       if (players[playerIdx].score >= targetScore) {
         showFinalMatchWinner(players[playerIdx]);
         return;
       }
 
-      // Regla: quien adivina, le toca ser el próximo creador
-      const nextMaster = playerIdx;
+      // En CPU mode, la máquina siempre es el próximo master
+      const nextMaster = isCPUGame ? 0 : playerIdx;
+      
       showRoundEndModal({
         winnerName: players[playerIdx].name,
         type: 'guesser',
@@ -778,7 +839,6 @@
       });
     }
 
-    // Caso B: Nadie adivinó y el ahorcado cayó (6 fallos) -> punto para el Creador
     function awardPointToMasterBecauseFailed() {
       const master = players[currentMasterIndex];
       master.score += 1;
@@ -790,7 +850,7 @@
         return;
       }
 
-      // Regla: si nadie adivina, el punto es para el creador y continúa escribiendo
+      // Si nadie adivina, el punto es para el creador (sea máquina o humano)
       showRoundEndModal({
         winnerName: master.name,
         type: 'master',
@@ -817,12 +877,16 @@
         roundEndIcon.className = "w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3 text-2xl bg-emerald-500/20 text-emerald-400";
         roundEndIcon.innerHTML = '<i class="fa-solid fa-trophy"></i>';
         roundEndTitle.textContent = `¡Adivinó ${winnerName}!`;
-        roundEndDesc.textContent = `Suma +1 punto y ahora le corresponde escribir la palabra.`;
+        roundEndDesc.textContent = isCPUGame 
+          ? `¡Bien hecho! Sumas +1 punto.`
+          : `Suma +1 punto y ahora le corresponde escribir la palabra.`;
       } else {
         roundEndIcon.className = "w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3 text-2xl bg-rose-500/20 text-rose-400";
         roundEndIcon.innerHTML = '<i class="fa-solid fa-skull"></i>';
         roundEndTitle.textContent = `¡Ahorcado! Punto para ${winnerName}`;
-        roundEndDesc.textContent = `Nadie adivinó la palabra. ${winnerName} se anota el punto y sigue escribiendo.`;
+        roundEndDesc.textContent = isCPUGame
+          ? `No lograste adivinarla. La Máquina anota el punto.`
+          : `Nadie adivinó la palabra. ${winnerName} se anota el punto y sigue escribiendo.`;
       }
 
       roundEndModal.classList.remove('hidden');
@@ -832,7 +896,12 @@
       roundEndModal.classList.add('hidden');
       currentMasterIndex = pendingNextMaster;
       renderScoreboard();
-      openWordModal();
+
+      if (isCPUGame) {
+        startCPURound();
+      } else {
+        openWordModal();
+      }
     });
 
     // -------------------------------------------------------------
@@ -858,7 +927,6 @@
       matchWinnerName.textContent = winnerPlayer.name;
       matchWinnerScore.textContent = `¡Primer jugador en alcanzar la meta de ${targetScore} puntos!`;
 
-      // Tabla final ordenada por puntuación descendente
       const sorted = [...players].sort((a, b) => b.score - a.score);
       finalLeaderboard.innerHTML = '';
       sorted.forEach((p, idx) => {
@@ -877,13 +945,17 @@
       matchWinnerModal.classList.remove('hidden');
     }
 
-    // Revancha con los mismos jugadores y meta
     rematchBtn.addEventListener('click', () => {
       matchWinnerModal.classList.add('hidden');
       players.forEach(p => p.score = 0);
       currentMasterIndex = 0;
       renderScoreboard();
-      openWordModal();
+      
+      if (isCPUGame) {
+        startCPURound();
+      } else {
+        openWordModal();
+      }
     });
 
     newMatchFromWinBtn.addEventListener('click', () => {
@@ -892,7 +964,27 @@
     });
 
     // -------------------------------------------------------------
-    // MODAL DE INGRESO DE PALABRA
+    // GESTIÓN MODO CPU (1 Jugador)
+    // -------------------------------------------------------------
+    function startCPURound() {
+      // Reiniciar pool si ya se jugaron las 50 palabras
+      if (usedCPUWordsList.length >= WORDS_DB.length) {
+        usedCPUWordsList = [];
+      }
+      
+      // Filtrar las palabras no usadas
+      const availableWords = WORDS_DB.filter(item => !usedCPUWordsList.includes(item.w));
+      const randomIndex = Math.floor(Math.random() * availableWords.length);
+      const selected = availableWords[randomIndex];
+      
+      usedCPUWordsList.push(selected.w);
+
+      // Iniciar ronda automáticamente con modo clásico (revela inicio y fin)
+      startRound(selected.w, selected.c, true);
+    }
+
+    // -------------------------------------------------------------
+    // MODAL DE INGRESO DE PALABRA (Modos Multijugador)
     // -------------------------------------------------------------
     const wordModal = document.getElementById('wordModal');
     const wordForm = document.getElementById('wordForm');
@@ -940,6 +1032,7 @@
       inputError.classList.add('hidden');
 
       startRound(val, clueInput.value, revealEndsCheck.checked);
+      wordModal.classList.add('hidden');
     });
 
     function startRound(word, clue, revealEnds) {
@@ -970,7 +1063,6 @@
 
       initKeyboard();
 
-      // Deshabilitar teclas ya reveladas
       guessedLetters.forEach(letter => {
         const keyBtn = document.getElementById(`key-${letter}`);
         if (keyBtn) {
@@ -983,7 +1075,6 @@
       renderWord();
       updateDrawing();
       updateLives();
-      wordModal.classList.add('hidden');
     }
 
     // -------------------------------------------------------------
@@ -1006,33 +1097,47 @@
     countButtons.forEach(btn => {
       btn.addEventListener('click', () => {
         countButtons.forEach(b => {
-          b.className = 'player-count-btn py-2 rounded-xl border border-slate-700 bg-slate-800 text-slate-300 font-game text-base font-bold transition hover:bg-slate-700';
+          b.className = 'player-count-btn py-2 rounded-xl border border-slate-700 bg-slate-800 text-slate-300 font-game text-sm font-bold transition hover:bg-slate-700';
         });
-        btn.className = 'player-count-btn py-2 rounded-xl border border-indigo-500 bg-indigo-600 text-white font-game text-base font-bold transition shadow-lg shadow-indigo-600/30';
-        selectedPlayerCount = parseInt(btn.dataset.count);
+        
+        const count = parseInt(btn.dataset.count);
+        // Si es CPU (1 jugador), se marca el botón visualmente igual
+        if (count === 1) {
+          btn.className = 'player-count-btn py-2 rounded-xl border border-indigo-500 bg-indigo-600 text-white font-game text-sm font-bold transition shadow-lg shadow-indigo-600/30';
+        } else {
+          btn.className = 'player-count-btn py-2 rounded-xl border border-indigo-500 bg-indigo-600 text-white font-game text-sm font-bold transition shadow-lg shadow-indigo-600/30';
+        }
+        
+        selectedPlayerCount = count;
         renderPlayerNameInputs(selectedPlayerCount);
       });
     });
 
     function renderPlayerNameInputs(count) {
       playerNamesInputs.innerHTML = '';
-      for (let i = 1; i <= count; i++) {
-        const existingName = players[i - 1]?.name || `Jugador ${i}`;
+      
+      if (count === 1) {
+        // En modo 1 jugador vs CPU
+        const existingName = players.length === 2 && !players[1].isCPU ? players[1].name : "Jugador 1";
         const row = document.createElement('div');
-        row.className = 'flex items-center gap-2';
+        row.className = 'flex items-center gap-2 mb-2';
         row.innerHTML = `
-          <span class="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 text-xs font-bold flex items-center justify-center text-slate-300">${i}</span>
-          <input 
-            type="text" 
-            maxlength="15" 
-            id="pNameInput-${i}" 
-            value="${existingName}" 
-            required 
-            class="flex-1 px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm font-semibold text-white focus:outline-none focus:border-indigo-500"
-            placeholder="Nombre Jugador ${i}"
-          >
+          <span class="w-8 h-8 rounded-lg bg-indigo-900 border border-indigo-700 text-xs font-bold flex items-center justify-center text-indigo-300"><i class="fa-solid fa-user"></i></span>
+          <input type="text" maxlength="15" id="pNameInput-1" value="${existingName}" required class="flex-1 px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm font-semibold text-white focus:outline-none focus:border-indigo-500" placeholder="Tu Nombre">
         `;
         playerNamesInputs.appendChild(row);
+      } else {
+        // Modo multijugador normal
+        for (let i = 1; i <= count; i++) {
+          const existingName = players[i - 1]?.name || `Jugador ${i}`;
+          const row = document.createElement('div');
+          row.className = 'flex items-center gap-2 mb-2';
+          row.innerHTML = `
+            <span class="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 text-xs font-bold flex items-center justify-center text-slate-300">${i}</span>
+            <input type="text" maxlength="15" id="pNameInput-${i}" value="${existingName}" required class="flex-1 px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm font-semibold text-white focus:outline-none focus:border-indigo-500" placeholder="Nombre Jugador ${i}">
+          `;
+          playerNamesInputs.appendChild(row);
+        }
       }
     }
 
@@ -1040,22 +1145,32 @@
       e.preventDefault();
       const points = parseInt(targetPointsInput.value) || 3;
       targetScore = Math.max(1, points);
-
+      
+      isCPUGame = selectedPlayerCount === 1;
       const newPlayers = [];
-      for (let i = 1; i <= selectedPlayerCount; i++) {
-        const nameVal = document.getElementById(`pNameInput-${i}`).value.trim() || `Jugador ${i}`;
-        newPlayers.push({
-          id: i,
-          name: nameVal,
-          score: 0
-        });
+
+      if (isCPUGame) {
+        const nameVal = document.getElementById(`pNameInput-1`).value.trim() || `Jugador 1`;
+        newPlayers.push({ id: 0, name: "Máquina", score: 0, isCPU: true });
+        newPlayers.push({ id: 1, name: nameVal, score: 0, isCPU: false });
+        currentMasterIndex = 0; // La máquina siempre será el Master
+      } else {
+        for (let i = 1; i <= selectedPlayerCount; i++) {
+          const nameVal = document.getElementById(`pNameInput-${i}`).value.trim() || `Jugador ${i}`;
+          newPlayers.push({ id: i, name: nameVal, score: 0 });
+        }
+        currentMasterIndex = 0;
       }
 
       players = newPlayers;
-      currentMasterIndex = 0;
       matchSetupModal.classList.add('hidden');
       renderScoreboard();
-      openWordModal();
+      
+      if (isCPUGame) {
+        startCPURound();
+      } else {
+        openWordModal();
+      }
     });
 
     // -------------------------------------------------------------
