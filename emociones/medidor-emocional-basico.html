@@ -51,13 +51,15 @@
             <!-- Resultado -->
             <div class="pt-6 border-t border-gray-700 mt-6 text-center">
                 <p class="text-gray-400 text-lg mb-2">Tu estado emocional es:</p>
-                <div class="bg-gray-900 border-2 border-gray-600 rounded-xl p-4 min-h-[80px] flex items-center justify-center">
-                    <span id="resultado-texto" class="text-3xl font-bold text-white capitalize">---</span>
+                <div class="bg-gray-900 border-2 border-gray-600 rounded-xl p-6 min-h-[120px] flex flex-col items-center justify-center transition-all duration-300">
+                    <span id="resultado-texto" class="text-3xl font-bold text-white capitalize mb-1">---</span>
+                    <span id="resultado-zona" class="text-sm font-semibold text-blue-400 mb-3 hidden"></span>
+                    <p id="resultado-desc" class="text-sm text-gray-300 italic leading-relaxed hidden px-2"></p>
                 </div>
             </div>
             
             <div class="text-center mt-6">
-                <a href="medidor-emociones.html" class="text-sm text-gray-500 hover:text-blue-400 underline transition">Volver al Test Completo</a>
+                <a href="medidor-emociones.html" class="text-sm text-gray-500 hover:text-blue-400 underline transition">Ir al Test Completo (Mayor Precisión)</a>
             </div>
         </div>
     </div>
@@ -76,20 +78,58 @@
             ["Desesperado", "Desmoralizado", "Desolado", "Agotado", "Abatido", "Soñoliento", "Satisfecho", "Sereno", "Amigable", "Plácido"]
         ];
 
+        const quadrants20 = [
+            { minX: 1, maxX: 5, minY: 8, maxY: 10, title: "Alta Tensión Displacentera", desc: "Experimentas un pico de energía con sensaciones desagradables (ansiedad, rabia). Acción recomendada: Haz respiraciones diafragmáticas largas, toma agua fría y aléjate de estímulos intensos." },
+            { minX: 6, maxX: 10, minY: 8, maxY: 10, title: "Alta Energía Placentera", desc: "Tienes una energía desbordante y positiva. Te sientes alegre y con ganas de comerte el mundo. Acción recomendada: Canaliza este impulso hacia la creatividad o comparte tu alegría de forma constructiva." },
+            { minX: 1, maxX: 5, minY: 5, maxY: 7, title: "Displacer Moderado-Alto", desc: "Hay fricción en tu día. Sientes tensión o frustración. Acción recomendada: Identifica el gatillante exacto. Escribe lo que te molesta para sacarlo de tu cabeza y haz una pausa estirando los músculos." },
+            { minX: 6, maxX: 10, minY: 5, maxY: 7, title: "Bienestar Activo", desc: "Tu energía es buena. Estás en un punto óptimo de productividad y agrado. Acción recomendada: Aprovecha este estado para avanzar en pendientes, planificar o disfrutar de una conversación." },
+            { minX: 1, maxX: 5, minY: 3, maxY: 4, title: "Desánimo y Baja Energía", desc: "Tu energía decae hacia la tristeza o desmotivación. Sientes el cuerpo pesado. Acción recomendada: Sé amable contigo. No te exijas de más; permítete procesar la emoción o toma aire fresco 5 minutos." },
+            { minX: 6, maxX: 10, minY: 3, maxY: 4, title: "Calma Positiva", desc: "Te encuentras en un estado de equilibrio apacible. No hay urgencias. Acción recomendada: Disfruta del momento presente, lee un buen libro, toca un instrumento o descansa sabiendo que todo está en orden." },
+            { minX: 1, maxX: 5, minY: 1, maxY: 2, title: "Agotamiento Crítico Displacentero", desc: "Tus baterías están al mínimo y las sensaciones son pesadas. Acción recomendada: Detén todo. Cierra los ojos, concéntrate en tu respiración abdominal, busca un espacio seguro y descansa sin culpa." },
+            { minX: 6, maxX: 10, minY: 1, maxY: 2, title: "Paz Profunda y Relajación", desc: "Tu energía es muy baja pero el placer interior es máximo. Acción recomendada: Déjate llevar por el descanso. Es el momento perfecto para recargar energías de forma genuina y sanadora." }
+        ];
+
         function calcularBasico() {
             let valPlacer = parseInt(document.getElementById('q-placer').value);
             let valEnergia = parseInt(document.getElementById('q-energia').value);
 
-            // Cálculo directo de 1-10 a coordenadas de matriz 0-9
             let x = valPlacer - 1;
             let y = 10 - valEnergia;
 
-            document.getElementById('resultado-texto').innerText = emotionMatrix[y][x];
-            
-            // Animación sutil de actualización
-            const res = document.getElementById('resultado-texto');
-            res.style.opacity = '0';
-            setTimeout(() => { res.style.opacity = '1'; res.style.transition = 'opacity 0.3s ease'; }, 50);
+            let detectedEmotion = emotionMatrix[y][x];
+
+            let matchedQ = quadrants20.find(q => 
+                valPlacer >= q.minX && valPlacer <= q.maxX && valEnergia >= q.minY && valEnergia <= q.maxY
+            );
+
+            let finalTitle = matchedQ ? matchedQ.title : "Transición Emocional";
+            let finalDesc = matchedQ ? matchedQ.desc : "Te encuentras en un punto de transición sin una polarización extrema.";
+
+            const txtElement = document.getElementById('resultado-texto');
+            const zonaElement = document.getElementById('resultado-zona');
+            const descElement = document.getElementById('resultado-desc');
+
+            // Ocultar suavemente para el efecto visual
+            txtElement.style.opacity = '0';
+            zonaElement.style.opacity = '0';
+            descElement.style.opacity = '0';
+
+            setTimeout(() => { 
+                txtElement.innerText = detectedEmotion;
+                zonaElement.innerText = `Zona: ${finalTitle}`;
+                descElement.innerText = finalDesc;
+
+                zonaElement.classList.remove('hidden');
+                descElement.classList.remove('hidden');
+
+                txtElement.style.opacity = '1'; 
+                zonaElement.style.opacity = '1'; 
+                descElement.style.opacity = '1'; 
+                
+                txtElement.style.transition = 'opacity 0.3s ease'; 
+                zonaElement.style.transition = 'opacity 0.3s ease'; 
+                descElement.style.transition = 'opacity 0.3s ease'; 
+            }, 150);
         }
     </script>
 </body>
