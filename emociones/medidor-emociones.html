@@ -3,32 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Título optimizado (Entre 50 y 60 caracteres) -->
-    <title>Medidor de Emociones Online Gratis | Test Emocional - Bloqcode</title>
-
-    <!-- Metaetiquetas Básicas y SEO -->
-    <meta name="description" content="Descubre exactamente qué sientes con el Medidor de Emociones de Bloqcode. Test interactivo gratuito para identificar estados emocionales, autorregularte y encontrar equilibrio mental.">
-    <meta name="keywords" content="medidor de emociones, test emocional gratis, psicologia online, inteligencia emocional, rueda de las emociones, autoconocimiento, bienestar mental, bloqcode chile">
-    <meta name="author" content="Bloqcode Chile">
-    <meta name="robots" content="index, follow">
-
-    <!-- URL Canónica -->
-    <link rel="canonical" href="https://bloqcode.cl/emociones/medidor-emociones.html">
-
-    <!-- Open Graph / Redes Sociales (Facebook, WhatsApp, LinkedIn) -->
-    <meta property="og:type" content="website">
-    <meta property="og:locale" content="es_CL">
-    <meta property="og:site_name" content="Bloqcode Chile">
-    <meta property="og:title" content="Medidor de Emociones Online Gratis - Bloqcode">
-    <meta property="og:description" content="¿Sabes exactamente qué estás sintiendo hoy? Haz este test rápido o guiado para identificar tus emociones y reencontrar tu foco.">
-    <meta property="og:url" content="https://bloqcode.cl/emociones/medidor-emociones.html">
-    <meta property="og:image" content="https://bloqcode.cl/assets/branding/IsotipoBC.png">
-
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Medidor de Emociones - Test Interactivo Bloqcode">
-    <meta name="twitter:description" content="Identifica qué sientes en tiempo real y encuentra claridad emocional en pocos minutos.">
-    <meta name="twitter:image" content="https://bloqcode.cl/assets/branding/IsotipoBC.png">
+    <title>Medidor de Emociones</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
@@ -96,20 +71,13 @@
             .grid-cell { font-size: 0.7rem; }
         }
         
-        /* Colors matching the image quadrants roughly */
-        /* Top Left: Oranges / Browns / Dark Reds */
-        .quad-tl { background-color: #d97706; } /* Amber/Orange */
-        .quad-tl:nth-child(-n+30) { background-color: #c2410c; } /* Darker Orange */
-        
-        /* Top Right: Greens */
+        /* Colors */
+        .quad-tl { background-color: #d97706; } 
+        .quad-tl:nth-child(-n+30) { background-color: #c2410c; } 
         .quad-tr { background-color: #22c55e; } 
         .quad-tr:nth-child(even) { background-color: #16a34a; }
-        
-        /* Bottom Left: Reds / Pinks */
         .quad-bl { background-color: #ef4444; }
-        .quad-bl:nth-child(even) { background-color: #be123c; } /* Rose */
-        
-        /* Bottom Right: Yellows */
+        .quad-bl:nth-child(even) { background-color: #be123c; } 
         .quad-br { background-color: #eab308; color: #422006;}
         .quad-br:nth-child(even) { background-color: #facc15; }
 
@@ -139,7 +107,7 @@
             <p class="text-gray-400 text-lg">Descubre exactamente cómo te sientes a través de este breve test.</p>
         </header>
 
-        <!-- Selección de Duración (Nueva Interfaz) -->
+        <!-- Selección de Duración -->
         <div id="config-container" class="bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-10 mb-8 max-w-2xl mx-auto">
             <h2 class="text-2xl font-bold text-center mb-6 text-gray-200">Selecciona la duración del test:</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -162,7 +130,7 @@
             </div>
         </div>
 
-        <!-- Main Interface (Oculta al inicio) -->
+        <!-- Main Interface -->
         <div id="test-container" class="hidden bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-10">
             <div class="flex justify-between items-center mb-6">
                 <p class="text-sm text-gray-400">Selecciona un valor del 1 al 10 (1 = En desacuerdo, 10 = De acuerdo).</p>
@@ -170,7 +138,6 @@
             </div>
             
             <form id="emotion-form" class="space-y-8">
-                <!-- Questions will be injected here via JS -->
                 <div id="questions-list" class="space-y-4"></div>
 
                 <div class="pt-6 border-t border-gray-700">
@@ -181,7 +148,7 @@
             </form>
         </div>
 
-        <!-- Results Interface (Oculta por defecto) -->
+        <!-- Results Interface -->
         <div id="results-container" class="hidden space-y-8">
             <div class="bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-10 text-center">
                 <h2 class="text-2xl text-gray-400 font-semibold mb-2">Tu estado emocional actual es:</h2>
@@ -206,18 +173,50 @@
                 </button>
             </div>
 
+            <!-- Feedback Form Section (NUEVO) -->
+            <div class="bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-8 max-w-2xl mx-auto border border-gray-700">
+                <h3 class="text-xl font-bold text-gray-200 mb-2 text-center">¿Qué te pareció el test?</h3>
+                <p class="text-sm text-gray-400 text-center mb-6">Tu retroalimentación nos ayuda a mejorar esta herramienta (Opcional)</p>
+                
+                <form id="feedback-form" class="space-y-5">
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="text-sm font-medium text-gray-300">Calificación general</label>
+                            <span id="val-rating" class="text-xl font-bold text-yellow-400">5 ★</span>
+                        </div>
+                        <input type="range" id="feedback-rating" min="1" max="5" value="5" class="w-full" oninput="document.getElementById('val-rating').innerText = this.value + ' ★'">
+                        <div class="flex justify-between text-xs text-gray-500 mt-1">
+                            <span>1 (Malo)</span>
+                            <span>5 (Excelente)</span>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Comentarios o sugerencias</label>
+                        <textarea id="feedback-text" rows="3" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-3 text-gray-200 focus:outline-none focus:border-blue-500 transition" placeholder="¿Qué podríamos mejorar o agregar?"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-gray-700 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-xl transition duration-300">
+                        Enviar opinión
+                    </button>
+                </form>
+                
+                <div id="feedback-success" class="hidden text-center mt-4">
+                    <p class="text-green-400 font-bold text-lg">¡Gracias por tus comentarios!</p>
+                    <p class="text-sm text-gray-400">Hemos registrado tu respuesta.</p>
+                </div>
+            </div>
+
             <!-- Visual Matrix -->
-            <div class="bg-gray-800 rounded-2xl shadow-2xl p-4 md:p-8 overflow-x-auto">
+            <div class="bg-gray-800 rounded-2xl shadow-2xl p-4 md:p-8 overflow-x-auto mt-8">
                 <h3 class="text-xl font-semibold mb-6 text-center text-gray-300">Mapa Emocional</h3>
                 
-                <!-- Layout container for labels and grid -->
                 <div class="flex flex-col items-center min-w-[600px]">
                     <div class="w-full text-center text-sm text-gray-400 mb-2 font-bold tracking-widest">+ ENERGÍA</div>
                     
                     <div class="flex items-center w-full justify-center">
                         <div class="text-sm text-gray-400 mr-4 font-bold tracking-widest" style="writing-mode: vertical-rl; transform: rotate(180deg);">DESAGRADABLE</div>
                         
-                        <!-- The Grid -->
                         <div id="matrix-grid" class="emotion-grid bg-gray-900 border-2 border-gray-700"></div>
                         
                         <div class="text-sm text-gray-400 ml-4 font-bold tracking-widest" style="writing-mode: vertical-rl;">AGRADABLE</div>
@@ -232,7 +231,6 @@
     <script>
         // 1. Banco de 30 Preguntas
         const questionBank = [
-            // Eje de Placer/Agradabilidad (15)
             { id: 'p1', type: 'pleasantness', inverted: false, text: "Siento una sensación cálida, de bienestar y profunda paz en mi interior." },
             { id: 'p2', type: 'pleasantness', inverted: false, text: "Percibo mi cuerpo y mente en armonía, sintiéndome afortunado(a) y cómodo(a) con quien soy." },
             { id: 'p3', type: 'pleasantness', inverted: true, text: "Me invade una sensación de rechazo, asco o profunda repulsión hacia lo que me rodea." },
@@ -249,7 +247,6 @@
             { id: 'p14', type: 'pleasantness', inverted: false, text: "Siento una paz tan serena que me reconforta plenamente por dentro." },
             { id: 'p15', type: 'pleasantness', inverted: true, text: "Siento que el entorno me supera, experimentando rechazo o aislamiento social." },
 
-            // Eje de Energía (15)
             { id: 'e1', type: 'energy', inverted: false, text: "Siento mi cuerpo lleno de electricidad, con pulsaciones rápidas o tensión acumulada." },
             { id: 'e2', type: 'energy', inverted: false, text: "Mis pensamientos van a mil por hora, me cuesta frenar la mente o concentrarme." },
             { id: 'e3', type: 'energy', inverted: true, text: "Siento una fatiga profunda, mis párpados pesan y me cuesta levantarme." },
@@ -277,9 +274,7 @@
             { minX: 6, maxX: 10, minY: 3, maxY: 4, title: "Calma Positiva", desc: "Te encuentras en un estado de equilibrio apacible. No hay urgencias, solo una agradable sensación de conformidad. Acción recomendada: Disfruta del momento presente, lee un buen libro, toca un instrumento o simplemente descansa sabiendo que todo está en orden." },
             { minX: 1, maxX: 5, minY: 1, maxY: 2, title: "Agotamiento Crítico Displacentero", desc: "Tus baterías están al mínimo absoluto y las sensaciones son pesadas o dolorosas. Estás en un estado límite de fatiga. Acción recomendada: Detén todo. Cierra los ojos, concéntrate únicamente en tu respiración abdominal, busca un espacio seguro y descansa sin culpa." },
             { minX: 6, maxX: 10, minY: 1, maxY: 2, title: "Paz Profunda y Relajación", desc: "Tu energía es muy baja pero el placer interior es máximo. Estás en un estado de relajación profunda o quietud. Acción recomendada: Déjate llevar por el descanso. Es el momento perfecto para recargar energías de forma genuina y sanadora." }
-        ];
 
-        // 10x10 Matrix Original
         const emotionMatrix = [
             ["Violento", "En pánico", "Estresado", "Agitado", "En shock", "Sorprendido", "Alegre", "Contento", "Jubiloso", "Eufórico"],
             ["Colérico", "Furioso", "Frustrado", "Tenso", "Aturdido", "Desmadrado", "De buen humor", "Motivado", "Inspirado", "Jovial"],
@@ -294,8 +289,6 @@
         ];
 
         let currentQuestions = [];
-
-        // 2. Inicialización
         const questionsList = document.getElementById('questions-list');
         const matrixGrid = document.getElementById('matrix-grid');
 
@@ -320,7 +313,6 @@
         renderMatrix();
 
         function startTest(count) {
-            // Seleccionar aleatoriamente
             let pleasureQ = questionBank.filter(q => q.type === 'pleasantness').sort(() => 0.5 - Math.random());
             let energyQ = questionBank.filter(q => q.type === 'energy').sort(() => 0.5 - Math.random());
             
@@ -357,7 +349,6 @@
             document.getElementById(`val-${id}`).innerText = document.getElementById(id).value;
         }
 
-        // 3. Lógica y Cálculo Dinámico
         document.getElementById('emotion-form').addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -366,17 +357,10 @@
 
             currentQuestions.forEach(q => {
                 let val = parseInt(document.getElementById(q.id).value);
-                if (q.inverted) {
-                    val = 11 - val; // Invierte el valor (1 pasa a 10, 10 pasa a 1)
-                }
+                if (q.inverted) val = 11 - val;
 
-                if (q.type === 'energy') {
-                    totalEnergy += val;
-                    countEnergy++;
-                } else {
-                    totalPleasure += val;
-                    countPleasure++;
-                }
+                if (q.type === 'energy') { totalEnergy += val; countEnergy++; }
+                else { totalPleasure += val; countPleasure++; }
             });
             
             let energy = Math.round(totalEnergy / countEnergy);
@@ -385,46 +369,81 @@
             energy = Math.max(1, Math.min(10, energy));
             pleasantness = Math.max(1, Math.min(10, pleasantness));
 
-            // Mapeo a Coordenadas (0-9)
             let r = 10 - energy; 
             let c = pleasantness - 1;
             let detectedEmotion = emotionMatrix[r][c];
 
-            // Buscar descripción en los 20 cuadrantes
             let matchedQ = quadrants20.find(q => 
                 pleasantness >= q.minX && pleasantness <= q.maxX && energy >= q.minY && energy <= q.maxY
             );
 
             let finalTitle = matchedQ ? matchedQ.title : "Transición Emocional";
-            let finalDesc = matchedQ ? matchedQ.desc : "Te encuentras en un punto de transición sin una polarización extrema de energía o placer.";
+            let finalDesc = matchedQ ? matchedQ.desc : "Te encuentras en un punto de transición sin una polarización extrema.";
 
-            // Display Results
             document.getElementById('result-emotion').innerText = detectedEmotion;
             document.getElementById('result-quadrant-title').innerText = `Zona: ${finalTitle}`;
             document.getElementById('result-energy').innerText = energy + " / 10";
             document.getElementById('result-pleasantness').innerText = pleasantness + " / 10";
             document.getElementById('result-description').innerText = finalDesc;
 
-            // Highlight Matrix Cell
             document.querySelectorAll('.grid-cell').forEach(cell => cell.classList.remove('highlighted-cell'));
             const targetCell = document.getElementById(`cell-${r}-${c}`);
-            if (targetCell) {
-                targetCell.classList.add('highlighted-cell');
-            }
+            if (targetCell) targetCell.classList.add('highlighted-cell');
 
-            // Switch Views
             document.getElementById('test-container').classList.add('hidden');
             document.getElementById('results-container').classList.remove('hidden');
             window.scrollTo({ top: 0, behavior: 'smooth' });
         });
 
-        // Botones de Reset
-        document.getElementById('btn-reset').addEventListener('click', function() {
-            resetApp();
-        });
+// Lógica del formulario de Feedback conectada a Google Sheets
+        document.getElementById('feedback-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const rating = document.getElementById('feedback-rating').value;
+            const comments = document.getElementById('feedback-text').value;
+            
+            // Pega aquí la URL generada en Apps Script
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbzK90UAGYVDJKo3g0aq-PqeK2LEZUJnkCeIM-1RjLCaZanLVvtXyG_9xoRkiDEiL8pI6w/exec';
 
+            // Cambiamos el texto del botón temporalmente para dar feedback visual
+            const btn = this.querySelector('button[type="submit"]');
+            const originalText = btn.innerText;
+            btn.innerText = 'Enviando...';
+            btn.disabled = true;
+
+            fetch(scriptURL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    calificacion: rating,
+                    comentario: comments
+                }),
+                // Usamos text/plain para evitar bloqueos de CORS en el navegador
+                headers: {
+                    'Content-Type': 'text/plain;charset=utf-8',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                this.classList.add('hidden');
+                document.getElementById('feedback-success').classList.remove('hidden');
+                btn.innerText = originalText;
+                btn.disabled = false;
+            })
+            .catch(error => {
+                console.error('Error en el envío:', error);
+                btn.innerText = 'Error. Intenta de nuevo';
+                btn.disabled = false;
+            });
+        });
         function resetApp() {
             document.getElementById('emotion-form').reset();
+            
+            // Restaurar feedback form
+            document.getElementById('feedback-form').reset();
+            document.getElementById('val-rating').innerText = '5 ★';
+            document.getElementById('feedback-form').classList.remove('hidden');
+            document.getElementById('feedback-success').classList.add('hidden');
+
             document.getElementById('results-container').classList.add('hidden');
             document.getElementById('test-container').classList.add('hidden');
             document.getElementById('config-container').classList.remove('hidden');
