@@ -158,177 +158,185 @@
         </div>
     </div>
 
-    <script>
-        // Base de datos de preguntas e identificadores
-        const bancoToxicas = [
-            { id: "q1", cat: "toxicas", texto: "Me molesta mucho que la gente no actúe de la forma que me gusta." },
-            { id: "q2", cat: "toxicas", texto: "Trato de demostrar mi malestar con el fin de que los demás hagan lo que quiero." },
-            { id: "q3", cat: "toxicas", texto: "Yo soy así, así me tienen que querer." },
-            { id: "q4", cat: "toxicas", texto: "Yo soy sincero(a), no me importa si a los demás les molesta." },
-            { id: "q5", cat: "toxicas", texto: "Mi pareja me debe respeto." },
-            { id: "q6", cat: "toxicas", texto: "A mi nadie me viene a tratar de enseñar." }
-        ];
+<script>
+    const bancoToxicas = [
+        { id: "q1", cat: "toxicas", texto: "Me molesta mucho que la gente no actúe de la forma que me gusta." },
+        { id: "q2", cat: "toxicas", texto: "Trato de demostrar mi malestar con el fin de que los demás hagan lo que quiero." },
+        { id: "q3", cat: "toxicas", texto: "Yo soy así, así me tienen que querer." },
+        { id: "q4", cat: "toxicas", texto: "Yo soy sincero(a), no me importa si a los demás les molesta." },
+        { id: "q5", cat: "toxicas", texto: "Mi pareja me debe respeto." },
+        { id: "q6", cat: "toxicas", texto: "A mi nadie me viene a tratar de enseñar." }
+    ];
 
-        const bancoComplacientes = [
-            { id: "q1", cat: "complacientes", texto: "Trato de adaptarme a cualquier persona para agradar." },
-            { id: "q2", cat: "complacientes", texto: "Nunca expreso mi molestia para no incomodar." },
-            { id: "q3", cat: "complacientes", texto: "Siento que no merezco mucho." },
-            { id: "q4", cat: "complacientes", texto: "No creo que mi opinión sea importante." },
-            { id: "q5", cat: "complacientes", texto: "Me gusta que mi pareja decida por mí." },
-            { id: "q6", cat: "complacientes", texto: "No sé si tengo mucho que aportar a los demás." }
-        ];
+    const bancoComplacientes = [
+        { id: "q1", cat: "complacientes", texto: "Trato de adaptarme a cualquier persona para agradar." },
+        { id: "q2", cat: "complacientes", texto: "Nunca expreso mi molestia para no incomodar." },
+        { id: "q3", cat: "complacientes", texto: "Siento que no merezco mucho." },
+        { id: "q4", cat: "complacientes", texto: "No creo que mi opinión sea importante." },
+        { id: "q5", cat: "complacientes", texto: "Me gusta que mi pareja decida por mí." },
+        { id: "q6", cat: "complacientes", texto: "No sé si tengo mucho que aportar a los demás." }
+    ];
 
-        const bancoSanas = [
-            { id: "q1", cat: "sanas", texto: "Si alguien actúa mal, me molesta." },
-            { id: "q2", cat: "sanas", texto: "Es importante demostrar la molestia con asertividad." },
-            { id: "q3", cat: "sanas", texto: "La autenticidad no tiene porque ser poco respetuosa." },
-            { id: "q4", cat: "sanas", texto: "Digo lo que pienso, pero busco la forma adecuada de hacerlo para no herir." },
-            { id: "q5", cat: "sanas", texto: "Que sea mi pareja, no significa que sea de mi propiedad." },
-            { id: "q6", cat: "sanas", texto: "Siempre se puede aprender algo nuevo." }
-        ];
+    const bancoSanas = [
+        { id: "q1", cat: "sanas", texto: "Si alguien actúa mal, me molesta." },
+        { id: "q2", cat: "sanas", texto: "Es importante demostrar la molestia con asertividad." },
+        { id: "q3", cat: "sanas", texto: "La autenticidad no tiene porque ser poco respetuosa." },
+        { id: "q4", cat: "sanas", texto: "Digo lo que pienso, pero busco la forma adecuada de hacerlo para no herir." },
+        { id: "q5", cat: "sanas", texto: "Que sea mi pareja, no significa que sea de mi propiedad." },
+        { id: "q6", cat: "sanas", texto: "Siempre se puede aprender algo nuevo." }
+    ];
 
-        // Textos de resultados (adaptación chilena)
-        const resultadosData = {
-            toxicas: {
-                arquetipo: "Chernobyl Emocional ☢️",
-                frases: {
-                    q1: "Parece que te encanta andar paqueando a medio mundo. ¡Relájate y suelta las riendas un rato!",
-                    q2: "Tu técnica de amurrarte o hacer show para conseguir lo que quieres es digna de teleserie. Quizás es hora de usar las palabras.",
-                    q3: "El clásico 'yo soy así y qué'. Cuidado, que hasta las piedras se pulen. ¡No te quedes pegado en esa!",
-                    q4: "Cuidado con tirar la pachotada y escudarte en que 'eres sincero'. Un filtrito de vez en cuando no le hace mal a nadie.",
-                    q5: "El respeto es clave, pero recuerda que se gana todos los días, no se exige como si fueras el dueño del fundo.",
-                    q6: "¡Atención, llegó el que se las sabe todas! Bajar el moño un rato y escuchar al resto no te va a quitar el carnet."
-                }
-            },
-            complacientes: {
-                arquetipo: "Mártir de Tiempo Completo 🏳️",
-                frases: {
-                    q1: "Te mimetizas tanto para caer bien que un día se te va a olvidar quién eres. ¡Atrévete a desentonar, no pasa naipe!",
-                    q2: "Te tragas tanto las rabias que un día vas a explotar como olla a presión. ¡Di lo que te molesta, el mundo no se va a acabar!",
-                    q3: "Alerta de baja autoestima. Mereces mucho más de lo que te estás creyendo. ¡Ponte las pilas y súbete el pelo!",
-                    q4: "Tu opinión vale oro, pero si te quedas piola siempre, nadie se va a enterar. ¡Sácale volumen a tu voz!",
-                    q5: "Dejar que elijan qué ver en Netflix salva, pero que decidan por ti en todo... ¡toma las riendas de tu vida, poh!",
-                    q6: "Tienes caleta que aportar, pero andas todo achunchado. ¡Es hora de creerte el cuento y mostrar lo que vales!"
-                }
-            },
-            sanas: {
-                arquetipo: "Buda de Barrio 🧘",
-                frases: {
-                    q1: "Sabes cachar al vuelo lo que está mal sin armar un escándalo. ¡Bien ahí marcando la cancha!",
-                    q2: "Expresas tus molestias sin dejar la escoba. Eres el adulto funcional que todos queremos ser cuando grandes.",
-                    q3: "Logras ser tú mismo sin pasar a llevar al resto en el proceso. Una verdadera joyita en peligro de extinción.",
-                    q4: "Tienes el superpoder de decir verdades incómodas sin sonar como un plomo. ¡Porfa da clases de tu técnica!",
-                    q5: "Entiendes que el amor no es andar asfixiando al otro. Tu pareja y tú pueden respirar en paz sin dramas.",
-                    q6: "No eres nada cerrado de mate y siempre estás dispuesto a cachar cosas nuevas. ¡Sigue con esas ganas de aprender!"
-                }
+    const resultadosData = {
+        toxicas: {
+            arquetipo: "Chernobyl Emocional ☢️",
+            frases: {
+                q1: "Parece que te encanta andar paqueando a medio mundo. ¡Relájate y suelta las riendas un rato!",
+                q2: "Tu técnica de amurrarte o hacer show para conseguir lo que quieres es digna de teleserie. Quizás es hora de usar las palabras.",
+                q3: "El clásico 'yo soy así y qué'. Cuidado, que hasta las piedras se pulen. ¡No te quedes pegado en esa!",
+                q4: "Cuidado con tirar la pachotada y escudarte en que 'eres sincero'. Un filtrito de vez en cuando no le hace mal a nadie.",
+                q5: "El respeto es clave, pero recuerda que se gana todos los días, no se exige como si fueras el dueño del fundo.",
+                q6: "¡Atención, llegó el que se las sabe todas! Bajar el moño un rato y escuchar al resto no te va a quitar el carnet."
             }
-        };
-
-        // Utilidad para desordenar arrays
-        function mezclarArray(array) {
-            return array.sort(() => Math.random() - 0.5);
+        },
+        complacientes: {
+            arquetipo: "Mártir de Tiempo Completo 🏳️",
+            frases: {
+                q1: "Te mimetizas tanto para caer bien que un día se te va a olvidar quién eres. ¡Atrévete a desentonar, no pasa naipe!",
+                q2: "Te tragas tanto las rabias que un día vas a explotar como olla a presión. ¡Di lo que te molesta, el mundo no se va a acabar!",
+                q3: "Alerta de baja autoestima. Mereces mucho más de lo que te estás creyendo. ¡Ponte las pilas y súbete el pelo!",
+                q4: "Tu opinión vale oro, pero si te quedas piola siempre, nadie se va a enterar. ¡Sácale volumen a tu voz!",
+                q5: "Dejar que elijan qué ver en Netflix salva, pero que decidan por ti en todo... ¡toma las riendas de tu vida, poh!",
+                q6: "Tienes caleta que aportar, pero andas todo achunchado. ¡Es hora de creerte el cuento y mostrar lo que vales!"
+            }
+        },
+        sanas: {
+            arquetipo: "Buda de Barrio 🧘",
+            frases: {
+                q1: "Sabes cachar al vuelo lo que está mal sin armar un escándalo. ¡Bien ahí marcando la cancha!",
+                q2: "Expresas tus molestias sin dejar la escoba. Eres el adulto funcional que todos queremos ser cuando grandes.",
+                q3: "Logras ser tú mismo sin pasar a llevar al resto en el proceso. Una verdadera joyita en peligro de extinción.",
+                q4: "Tienes el superpoder de decir verdades incómodas sin sonar como un plomo. ¡Porfa da clases de tu técnica!",
+                q5: "Entiendes que el amor no es andar asfixiando al otro. Tu pareja y tú pueden respirar en paz sin dramas.",
+                q6: "No eres nada cerrado de mate y siempre estás dispuesto a cachar cosas nuevas. ¡Sigue con esas ganas de aprender!"
+            }
         }
+    };
 
-        // Preparar el test intercalando las preguntas (Tox -> Comp -> San)
-        let testFinal = [];
-        let t = mezclarArray([...bancoToxicas]);
-        let c = mezclarArray([...bancoComplacientes]);
-        let s = mezclarArray([...bancoSanas]);
+    function mezclarArray(array) {
+        return array.sort(() => Math.random() - 0.5);
+    }
 
-        for (let i = 0; i < 6; i++) {
-            testFinal.push(t[i], c[i], s[i]);
-        }
+    let testFinal = [];
+    let t = mezclarArray([...bancoToxicas]);
+    let c = mezclarArray([...bancoComplacientes]);
+    let s = mezclarArray([...bancoSanas]);
 
-        // Variables de estado
-        let indiceActual = 0;
-        let puntajes = { toxicas: 0, complacientes: 0, sanas: 0 };
-        let registroRespuestas = { toxicas: [], complacientes: [], sanas: [] };
+    for (let i = 0; i < 6; i++) {
+        testFinal.push(t[i], c[i], s[i]);
+    }
 
-        // Referencias del DOM
-        const elPregunta = document.getElementById('texto-pregunta');
-        const elContador = document.getElementById('contador');
-        const pantallaTest = document.getElementById('pantalla-test');
-        const pantallaResultado = document.getElementById('pantalla-resultado');
+    let indiceActual = 0;
+    let puntajes = { toxicas: 0, complacientes: 0, sanas: 0 };
+    let registroRespuestas = { toxicas: [], complacientes: [], sanas: [] };
+    let procesandoClick = false; // Candado para evitar clics múltiples rápidos
 
-        // Mostrar la primera pregunta
-        function cargarPregunta() {
-            elContador.innerText = indiceActual + 1;
-            elPregunta.innerText = testFinal[indiceActual].texto;
-        }
+    const elPregunta = document.getElementById('texto-pregunta');
+    const elContador = document.getElementById('contador');
+    const pantallaTest = document.getElementById('pantalla-test');
+    const pantallaResultado = document.getElementById('pantalla-resultado');
 
-        // Manejar los clics en la escala
-        document.querySelectorAll('.btn-escala').forEach(boton => {
-            boton.addEventListener('click', (e) => {
-                const valor = parseInt(e.target.getAttribute('data-valor'));
-                const preguntaActual = testFinal[indiceActual];
-                
-                // Sumar al total de la categoría
-                puntajes[preguntaActual.cat] += valor;
-                
-                // Registrar la respuesta específica para buscar la frase después
-                registroRespuestas[preguntaActual.cat].push({
-                    id: preguntaActual.id,
-                    valor: valor
-                });
+    function cargarPregunta() {
+        elContador.innerText = indiceActual + 1;
+        elPregunta.innerText = testFinal[indiceActual].texto;
+        procesandoClick = false; // Liberar candado
+    }
 
-                indiceActual++;
-                
-                if (indiceActual < testFinal.length) {
-                    cargarPregunta();
-                } else {
-                    mostrarResultados();
-                }
+    document.querySelectorAll('.btn-escala').forEach(boton => {
+        boton.addEventListener('click', (e) => {
+            if (procesandoClick) return; // Evitar doble clic accidental
+            procesandoClick = true;
+
+            const valor = parseInt(e.currentTarget.getAttribute('data-valor'));
+            const preguntaActual = testFinal[indiceActual];
+            
+            puntajes[preguntaActual.cat] += valor;
+            
+            registroRespuestas[preguntaActual.cat].push({
+                id: preguntaActual.id,
+                valor: valor
             });
-        });
 
-        function mostrarResultados() {
-            pantallaTest.classList.add('oculto');
-            pantallaResultado.classList.remove('oculto');
-
-            // Determinar categoría ganadora
-            let categoriaGanadora = Object.keys(puntajes).reduce((a, b) => puntajes[a] > puntajes[b] ? a : b);
+            indiceActual++;
             
-            // Buscar la pregunta de esa categoría a la que le dio mayor puntaje
-            let respuestasCatGanadora = registroRespuestas[categoriaGanadora];
-            let respuestaTop = respuestasCatGanadora.reduce((a, b) => a.valor > b.valor ? a : b);
-            
-            // Extraer textos
-            const dataArquetipo = resultadosData[categoriaGanadora].arquetipo;
-            const fraseElegida = resultadosData[categoriaGanadora].frases[respuestaTop.id];
-
-            document.getElementById('arquetipo-titulo').innerText = dataArquetipo;
-            document.getElementById('frase-personalizada').innerText = fraseElegida;
-            
-            window.arquetipoParaCompartir = dataArquetipo;
-        }
-
-        // Botones de salida
-        document.getElementById('btn-volver').addEventListener('click', () => {
-            window.location.href = 'https://bloqcode.cl';
-        });
-
-        document.getElementById('btn-compartir').addEventListener('click', async () => {
-            const textoResultado = `¡Saqué '${window.arquetipoParaCompartir}' en el test de toxicidad de Bloqcode! ☢️ Descubre tu resultado aquí:`;
-            const urlTest = window.location.href;
-
-            if (navigator.share) {
-                try {
-                    await navigator.share({
-                        title: 'Test de Toxicidad',
-                        text: textoResultado,
-                        url: urlTest
-                    });
-                } catch (error) {
-                    console.log('Error al compartir', error);
-                }
+            if (indiceActual < testFinal.length) {
+                cargarPregunta();
             } else {
-                navigator.clipboard.writeText(`${textoResultado} ${urlTest}`);
-                alert('¡Resultado copiado al portapapeles!');
+                mostrarResultados();
             }
         });
+    });
 
-        // Iniciar
-        cargarPregunta();
-    </script>
+    function mostrarResultados() {
+        pantallaTest.classList.add('oculto');
+        pantallaResultado.classList.remove('oculto');
+
+        // Determinar categoría ganadora
+        let categoriaGanadora = Object.keys(puntajes).reduce((a, b) => puntajes[a] > puntajes[b] ? a : b);
+        
+        // Blindaje extra: asegurar que haya respuestas registradas
+        let respuestasCatGanadora = registroRespuestas[categoriaGanadora] || [];
+        let respuestaTop = respuestasCatGanadora.length > 0 
+            ? respuestasCatGanadora.reduce((a, b) => a.valor >= b.valor ? a : b) 
+            : { id: "q1" }; 
+        
+        const dataArquetipo = resultadosData[categoriaGanadora].arquetipo;
+        const fraseElegida = resultadosData[categoriaGanadora].frases[respuestaTop.id];
+
+        document.getElementById('arquetipo-titulo').innerText = dataArquetipo;
+        document.getElementById('frase-personalizada').innerText = fraseElegida;
+        
+        window.arquetipoParaCompartir = dataArquetipo;
+    }
+
+    document.getElementById('btn-volver').addEventListener('click', () => {
+        window.location.href = 'https://bloqcode.cl';
+    });
+
+    document.getElementById('btn-compartir').addEventListener('click', async () => {
+        const textoResultado = `¡Saqué '${window.arquetipoParaCompartir}' en el test de toxicidad de Bloqcode! ☢️ Descubre tu resultado aquí:`;
+        const urlTest = window.location.href;
+
+        // Intentar compartir nativamente primero
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: 'Test de Toxicidad',
+                    text: textoResultado,
+                    url: urlTest
+                });
+                return; // Si funciona, salimos de la función
+            } catch (error) {
+                console.log('El usuario canceló o share no funcionó, pasando al portapapeles...');
+            }
+        }
+        
+        // Fallback: Copiar al portapapeles si navigator.share falla o no existe (Ej: Chrome en Windows)
+        try {
+            await navigator.clipboard.writeText(`${textoResultado} ${urlTest}`);
+            alert('¡Resultado copiado al portapapeles! Puedes pegarlo en WhatsApp o Instagram.');
+        } catch (err) {
+            // Fallback final para navegadores muy restrictivos
+            const textArea = document.createElement("textarea");
+            textArea.value = `${textoResultado} ${urlTest}`;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand("Copy");
+            textArea.remove();
+            alert('¡Resultado copiado al portapapeles! Listo para pegar.');
+        }
+    });
+
+    cargarPregunta();
+</script>
 </body>
 </html>
