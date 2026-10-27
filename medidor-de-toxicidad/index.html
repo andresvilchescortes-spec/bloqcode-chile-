@@ -84,9 +84,13 @@
             border-color: #007bff;
         }
         
-        .etiqueta-escala {
+        .etiquetas-rango {
+            display: flex;
+            justify-content: space-between;
             font-size: 0.85em;
             color: #888;
+            padding: 0 5px;
+            margin-bottom: 5px;
         }
         
         .frase-destacada {
@@ -133,7 +137,10 @@
             <h2 id="texto-pregunta" class="pregunta">Cargando pregunta...</h2>
             
             <div class="escala-container">
-                <span class="etiqueta-escala">No me representa</span>
+                <div class="etiquetas-rango">
+                    <span>No me representa</span>
+                    <span>Me representa totalmente</span>
+                </div>
                 <div class="botones-escala" id="botones-escala">
                     <button class="btn-escala" data-valor="1">1</button>
                     <button class="btn-escala" data-valor="2">2</button>
@@ -141,9 +148,7 @@
                     <button class="btn-escala" data-valor="4">4</button>
                     <button class="btn-escala" data-valor="5">5</button>
                 </div>
-                <span class="etiqueta-escala">Me representa totalmente</span>
             </div>
-        </div>
 
         <!-- Pantalla de Resultados -->
         <div id="pantalla-resultado" class="oculto">
