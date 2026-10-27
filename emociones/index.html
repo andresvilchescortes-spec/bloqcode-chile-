@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bloqcode | Evaluaciones Emocionales</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #111827; color: #f3f4f6; }
+        .highlight-text { background: linear-gradient(to right, #60a5fa, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8 flex items-center justify-center">
+    <div class="max-w-4xl w-full">
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-extrabold mb-4 highlight-text">Evaluaciones Emocionales</h1>
+            <p class="text-gray-400 text-lg">Selecciona la herramienta que mejor se adapte a tu situación actual.</p>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Opción 1: Medidor -->
+            <a href="medidor-emociones.html" class="bg-gray-800 border border-gray-700 hover:border-blue-500 rounded-2xl p-8 transition duration-300 shadow-xl group block">
+                <h2 class="text-2xl font-bold text-gray-200 mb-3 group-hover:text-blue-400 transition">Medidor de Emociones</h2>
+                <p class="text-gray-400">Test orientado a medir las emociones que aparecen de forma repentina, frente a momentos críticos o sensaciones inmediatas que no puedes explicar.</p>
+            </a>
+
+            <!-- Opción 2: Brújula -->
+            <a href="brujula-de-emociones.html" class="bg-gray-800 border border-gray-700 hover:purple-blue-500 rounded-2xl p-8 transition duration-300 shadow-xl group block">
+                <h2 class="text-2xl font-bold text-gray-200 mb-3 group-hover:text-purple-400 transition">Brújula de Emociones</h2>
+                <p class="text-gray-400">Test orientado a explicar emociones o estados de ánimo que has experimentado de forma más permanente y constante a lo largo del tiempo.</p>
+            </a>
+        </div>
+    </div>
+</body>
+</html>
