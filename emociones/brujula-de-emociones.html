@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brújula de emociones</title>
+<style>
+:root{--bg:#f6f7fb;--card:#fff;--text:#202431;--muted:#626b7a;--primary:#5b5bd6;--accent:#e8e8ff;--border:#d9dce5;--focus:#ffb000;--ok:#286b4c}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);line-height:1.55}.wrap{width:min(920px,calc(100% - 28px));margin:auto;padding:28px 0 48px}.card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:clamp(18px,4vw,32px);box-shadow:0 8px 28px rgba(28,35,60,.07)}h1,h2,h3{line-height:1.15}h1{font-size:clamp(2rem,5vw,3rem);margin:.2em 0}.lead{font-size:1.1rem;color:var(--muted)}.notice{background:#fff8df;border-left:5px solid #e0a000;padding:14px 16px;border-radius:10px;margin:20px 0}.duration{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:18px 0}.duration input{position:absolute;opacity:0}.duration label{display:block;border:2px solid var(--border);border-radius:12px;padding:14px;cursor:pointer;background:var(--card)}.duration input:checked+label{border-color:var(--primary);box-shadow:0 0 0 3px var(--accent)}.duration strong,.duration span{display:block}.duration span{color:var(--muted);font-size:.92rem}.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}.btn{border:0;border-radius:12px;padding:12px 17px;font-weight:700;cursor:pointer;background:var(--primary);color:#fff;text-decoration:none;text-align:center}.btn.secondary{background:var(--accent);color:#30306f}.btn:focus-visible,input:focus-visible{outline:4px solid var(--focus);outline-offset:3px}.progress-shell{height:14px;background:#e8eaf0;border-radius:999px;overflow:hidden}.progress{height:100%;width:0;background:var(--primary);transition:width .2s}.status{display:flex;justify-content:space-between;gap:12px;color:var(--muted);margin:8px 0 22px}.question{border:0;padding:0;margin:0}.question legend{font-weight:750;font-size:clamp(1.25rem,3vw,1.55rem);margin-bottom:18px}.scale{display:grid;grid-template-columns:repeat(10,1fr);gap:7px}.choice{position:relative}.choice input{position:absolute;opacity:0}.choice label{display:grid;place-items:center;min-height:48px;border:2px solid var(--border);border-radius:10px;cursor:pointer;font-weight:700;background:#fff}.choice input:checked+label{background:var(--primary);border-color:var(--primary);color:#fff}.anchors{display:flex;justify-content:space-between;color:var(--muted);font-size:.92rem;margin-top:8px}.nav{display:flex;justify-content:space-between;gap:12px;margin-top:26px}.hidden{display:none!important}.result-head{display:flex;gap:16px;align-items:center}.dot{width:64px;height:64px;border-radius:50%;flex:none}.path{background:var(--accent);padding:14px 16px;border-radius:12px;font-weight:700}.bars{display:grid;gap:12px;margin:22px 0}.bar-label{display:flex;justify-content:space-between}.bar-track{height:12px;background:#e7e9ef;border-radius:999px;overflow:hidden}.bar-fill{height:100%;border-radius:999px}.reflection{background:#eef8f1;border-left:5px solid var(--ok);padding:15px;border-radius:10px}.error{color:#a51d2d;font-weight:700;min-height:1.5em}.contrast{--bg:#000;--card:#111;--text:#fff;--muted:#e5e5e5;--primary:#ffe45c;--accent:#242424;--border:#777;--focus:#20e2ff}.contrast .btn{color:#000}.contrast .btn.secondary{color:#fff}.contrast .choice label{background:#111}@media(max-width:620px){.duration{grid-template-columns:1fr}.scale{grid-template-columns:repeat(5,1fr)}.result-head{align-items:flex-start}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<section id="intro" class="card">
+<p><strong>Herramienta de autoobservación</strong></p><h1>Brújula de emociones</h1>
+<p class="lead">Treinta afirmaciones sobre señales físicas, energía, atención, conducta y entorno. No necesitas saber de antemano qué emoción sientes.</p>
+<div class="notice"><strong>Importante:</strong> esta herramienta ofrece una hipótesis para explorar, no un diagnóstico médico o psicológico. Si el resultado no encaja, puedes descartarlo. Si estás en peligro o necesitas apoyo urgente, contacta a emergencias o a una persona de confianza.</div>
+<h2>Cómo responder</h2><p>Marca de 1 a 10 cuánto coincide cada afirmación con tu experiencia de este momento o de las últimas horas. 1 significa “no coincide” y 10 “coincide completamente”. Puedes pausar cuando quieras.</p>
+<h2>Elige la duración</h2>
+<div class="duration" role="radiogroup" aria-label="Duración del test">
+<div><input type="radio" name="duration" id="d5" value="5"><label for="d5"><strong>Corto · 5 preguntas</strong><span>Orientación rápida para una situación urgente.</span></label></div>
+<div><input type="radio" name="duration" id="d10" value="10" checked><label for="d10"><strong>Medio · 10 preguntas</strong><span>Exploración breve con una pregunta adicional por familia.</span></label></div>
+<div><input type="radio" name="duration" id="d20" value="20"><label for="d20"><strong>Medio largo · 20 preguntas</strong><span>Mayor detalle y mejor contraste entre señales.</span></label></div>
+<div><input type="radio" name="duration" id="d30" value="30"><label for="d30"><strong>Largo · 30 preguntas</strong><span>Exploración completa.</span></label></div>
+</div>
+<p><small>Las versiones breves entregan el mismo tipo de resultado, pero con menor precisión. Si el resultado no encaja, prueba una versión más larga.</small></p>
+<div class="toolbar"><button class="btn secondary" id="contrastBtn" type="button">Alternar alto contraste</button><button class="btn" id="startBtn" type="button">Comenzar</button><a href="index.html" class="btn secondary">Volver a Bloqcode</a></div>
+</section>
+<section id="test" class="card hidden" aria-labelledby="qTitle">
+<div class="progress-shell" aria-hidden="true"><div id="progress" class="progress"></div></div><div class="status"><span id="counter"></span><span id="answered"></span></div>
+<form id="form"><fieldset class="question"><legend id="qTitle"></legend><div id="scale" class="scale"></div><div class="anchors"><span>1 · No coincide</span><span>10 · Coincide completamente</span></div></fieldset><p id="error" class="error" role="alert"></p><div class="nav"><button id="prevBtn" class="btn secondary" type="button">Anterior</button><button id="nextBtn" class="btn" type="button">Siguiente</button></div></form>
+</section>
+<section id="result" class="card hidden" aria-live="polite"><div class="result-head"><div id="resultDot" class="dot"></div><div><p>Resultado orientativo</p><h2 id="emotion"></h2></div></div><p id="path" class="path"></p><p id="description" class="lead"></p><div class="reflection"><strong>Para comprobar si encaja:</strong><p id="check"></p></div><h3>Familias emocionales detectadas</h3><div id="bars" class="bars"></div>
+
+<!-- Feedback Form Bloqcode -->
+<hr style="border:0; border-top:1px solid var(--border); margin: 30px 0;">
+<h3>¿Qué te pareció el test?</h3>
+<p class="lead" style="font-size: 0.95rem;">Tu retroalimentación nos ayuda a mejorar esta herramienta (Opcional)</p>
+<form id="feedback-form" style="margin-top: 15px;">
+    <div style="margin-bottom: 15px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <label style="font-weight: 700;">Calificación general</label>
+            <span id="val-rating" style="font-weight: 700; color: #ffb000;">5 ★</span>
+        </div>
+        <input type="range" id="feedback-rating" min="1" max="5" value="5" style="width: 100%; margin-top: 10px; cursor: pointer;" oninput="document.getElementById('val-rating').innerText = this.value + ' ★'">
+    </div>
+    <div style="margin-bottom: 15px;">
+        <label style="font-weight: 700; display: block; margin-bottom: 8px;">Comentarios o sugerencias</label>
+        <textarea id="feedback-text" rows="3" style="width: 100%; border: 2px solid var(--border); border-radius: 10px; padding: 10px; font-family: inherit; resize: vertical; background: var(--bg); color: var(--text);"></textarea>
+    </div>
+    <button type="submit" class="btn" style="width: 100%;">Enviar opinión</button>
+</form>
+<div id="feedback-success" class="reflection hidden" style="margin-top: 15px; text-align: center;">
+    <strong>¡Gracias por tus comentarios!</strong>
+    <p style="margin: 5px 0 0 0;">Hemos registrado tu respuesta.</p>
+</div>
+<!-- Fin Feedback -->
+
+<div class="toolbar" style="margin-top: 30px;"><button class="btn secondary" id="printBtn" type="button">Imprimir resultado</button><button class="btn" id="restartBtn" type="button">Repetir test</button><a href="index.html" class="btn secondary">Volver a Bloqcode</a></div><p><small>Los resultados se calculan únicamente en tu navegador. Esta página no envía ni guarda tus respuestas.</small></p></section>
+</main>
+<script>
+(()=>{
+const questions=[
+["Mi respiración está más rápida o corta de lo habitual.",{"miedo":2,"ira":1}],
+["Siento presión, nudo o peso en el pecho, garganta o estómago.",{"miedo":2,"tristeza":1}],
+["Mis músculos están tensos, especialmente mandíbula, hombros o manos.",{"ira":2,"miedo":1}],
+["Tengo ganas de moverme, caminar o hacer algo de inmediato.",{"alegria":1,"ira":2}],
+["Mi cuerpo se siente pesado y comenzar tareas requiere más esfuerzo.",{"tristeza":2,"calma":1}],
+["Busco menos ruido, luz, conversación o contacto de lo habitual.",{"miedo":1,"tristeza":1,"calma":1}],
+["Estoy revisando varias veces si algo puede salir mal.",{"miedo":3}],
+["Me cuesta apartar la atención de un error, injusticia u obstáculo.",{"ira":2,"tristeza":1}],
+["Quiero corregir, reclamar o poner un límite.",{"ira":3}],
+["Me dan ganas de alejarme, esconderme o evitar una situación.",{"miedo":2,"asco":1}],
+["Algo me resulta invasivo, desagradable o difícil de tolerar.",{"asco":3}],
+["Quiero limpiar, retirar o separar algo de mi espacio.",{"asco":3}],
+["Una información o cambio rompió lo que esperaba que ocurriera.",{"sorpresa":3}],
+["Necesito detenerme para entender qué está pasando.",{"sorpresa":2,"miedo":1}],
+["Mi atención salta hacia detalles nuevos o inesperados.",{"sorpresa":2,"alegria":1}],
+["Tengo más energía y las tareas parecen más posibles.",{"alegria":3}],
+["Quiero acercarme, compartir, crear o explorar.",{"alegria":3}],
+["Noto ganas espontáneas de sonreír, hablar o moverme.",{"alegria":3}],
+["Mi respiración está estable y puedo estar sin apurarme.",{"calma":3}],
+["Puedo notar el entorno sin sentir que debo reaccionar enseguida.",{"calma":3}],
+["Siento espacio mental para ordenar ideas paso a paso.",{"calma":3}],
+["Estoy pensando en algo que perdí, terminó o no ocurrió.",{"tristeza":3}],
+["Tengo menos interés en actividades que normalmente elijo.",{"tristeza":3}],
+["Busco apoyo, cercanía o compañía tranquila.",{"tristeza":2,"miedo":1}],
+["Estoy anticipando una posibilidad positiva y quiero que ocurra.",{"alegria":2,"sorpresa":1}],
+["Hay algo que no comprendo y sigo comparando explicaciones.",{"sorpresa":2,"miedo":1}],
+["Una regla, límite o valor importante para mí fue vulnerado.",{"ira":3}],
+["Siento rechazo ante una conducta, idea, olor, textura o situación.",{"asco":3}],
+["Prefiero observar antes de decidir qué hacer.",{"calma":2,"sorpresa":1}],
+["Aunque hay dificultad, puedo imaginar que algo mejore.",{"alegria":2,"calma":1}]
+];
+const outcomes={
+alegria:{label:"Esperanza",mid:"Alegría · optimismo",desc:"Podría haber una orientación positiva hacia el futuro: percibes una posibilidad de mejora y cierta energía para acercarte a ella.",check:"¿Hay una posibilidad concreta que deseas cuidar o hacer avanzar?",color:"#e39a22"},
+tristeza:{label:"Desaliento",mid:"Tristeza · vulnerabilidad",desc:"Podría haber una disminución de energía vinculada con una pérdida, una dificultad o algo que no ocurrió como necesitabas.",check:"¿Tu cuerpo pide reducir exigencias, descansar o recibir apoyo sin tener que explicar demasiado?",color:"#9a6173"},
+ira:{label:"Frustración",mid:"Ira · agitación",desc:"Podrías estar encontrando un obstáculo, límite vulnerado o situación que requiere cambio. La energía parece orientada a actuar o corregir.",check:"¿Existe un obstáculo específico o un límite que necesitas expresar de forma segura?",color:"#a04d62"},
+miedo:{label:"Inquietud",mid:"Miedo · preocupación",desc:"Tu organismo podría estar anticipando riesgo o incertidumbre. La atención parece buscar señales y posibles problemas.",check:"¿Ayudaría identificar qué dato falta, qué es controlable y cuál sería un paso pequeño de seguridad?",color:"#3d6e72"},
+asco:{label:"Rechazo",mid:"Asco · aversión",desc:"Podría existir una necesidad de distancia frente a algo percibido como invasivo, desagradable o incompatible con tus límites.",check:"¿Hay un estímulo, conducta o situación de la que necesitas tomar distancia?",color:"#7e8b45"},
+sorpresa:{label:"Perplejidad",mid:"Sorpresa · confusión",desc:"Algo parece no encajar con tus expectativas. Tu atención está intentando reorganizar información antes de responder.",check:"¿Qué parte es nueva o contradictoria, y qué información te permitiría comprenderla mejor?",color:"#df7d32"},
+calma:{label:"Tranquilidad",mid:"Calma · equilibrio",desc:"Hay señales de regulación y disponibilidad mental. Podrías contar con espacio para observar, ordenar o elegir sin urgencia.",check:"¿Qué condiciones del entorno están ayudando y conviene mantener?",color:"#537f7b"}
+};
+const sets={
+5:[0,4,10,12,15],
+10:[0,2,4,6,10,12,15,18,21,27],
+20:[0,1,2,4,6,7,8,10,11,12,13,15,16,18,19,21,22,24,26,27],
+30:Array.from({length:30},(_,i)=>i)
+};
+let activeQuestions=[],i=0,answers=[]; const $=s=>document.querySelector(s);
+function show(id){["intro","test","result"].forEach(x=>$("#"+x).classList.toggle("hidden",x!==id));window.scrollTo({top:0,behavior:"smooth"})}
+function render(){const [text]=activeQuestions[i];$("#qTitle").textContent=text;$("#counter").textContent=`Pregunta ${i+1} de ${activeQuestions.length}`;$("#answered").textContent=`${answers.filter(v=>v!==null).length} respondidas`;$("#progress").style.width=`${(i/activeQuestions.length)*100}%`;$("#scale").innerHTML=Array.from({length:10},(_,k)=>{const v=k+1;return `<div class="choice"><input type="radio" name="score" id="s${v}" value="${v}" ${answers[i]===v?'checked':''}><label for="s${v}">${v}</label></div>`}).join("");$("#prevBtn").disabled=i===0;$("#nextBtn").textContent=i===activeQuestions.length-1?"Ver resultado":"Siguiente";$("#error").textContent=""}
+function calculate(){const scores=Object.fromEntries(Object.keys(outcomes).map(k=>[k,0]));const max=Object.fromEntries(Object.keys(outcomes).map(k=>[k,0]));activeQuestions.forEach((q,idx)=>{Object.entries(q[1]).forEach(([k,w])=>{scores[k]+=answers[idx]*w;max[k]+=10*w})});const pct=Object.fromEntries(Object.keys(scores).map(k=>[k,max[k] ? Math.round(100*scores[k]/max[k]) : 0]));const ranked=Object.keys(pct).sort((a,b)=>pct[b]-pct[a]);const top=ranked[0],o=outcomes[top];$("#emotion").textContent=o.label;$("#path").textContent=`Señales observadas → ${o.mid} → ${o.label}`;$("#description").textContent=o.desc;$("#check").textContent=o.check;$("#resultDot").style.background=o.color;$("#bars").innerHTML=ranked.map(k=>`<div><div class="bar-label"><span>${outcomes[k].mid.split(' · ')[0]}</span><strong>${pct[k]}%</strong></div><div class="bar-track"><div class="bar-fill" style="width:${pct[k]}%;background:${outcomes[k].color}"></div></div></div>`).join('');show("result")}
+$("#startBtn").addEventListener("click",()=>{const n=Number(document.querySelector('input[name="duration"]:checked').value);activeQuestions=sets[n].map(idx=>questions[idx]);answers=Array(activeQuestions.length).fill(null);i=0;show("test");render()});$("#contrastBtn").addEventListener("click",()=>document.body.classList.toggle("contrast"));$("#scale").addEventListener("change",e=>{answers[i]=Number(e.target.value);$("#answered").textContent=`${answers.filter(v=>v!==null).length} respondidas`;$("#error").textContent=""});$("#prevBtn").addEventListener("click",()=>{if(i>0){i--;render()}});$("#nextBtn").addEventListener("click",()=>{if(answers[i]===null){$("#error").textContent="Selecciona un número antes de continuar.";return}if(i<activeQuestions.length-1){i++;render()}else calculate()});$("#restartBtn").addEventListener("click",()=>{i=0;activeQuestions=[];answers=[];show("intro")});$("#printBtn").addEventListener("click",()=>window.print());
+
+// Integración Formulario Feedback
+$("#feedback-form").addEventListener("submit", function(e) {
+    e.preventDefault();
+    const rating = $("#feedback-rating").value;
+    const comments = $("#feedback-text").value;
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbzK90UAGYVDJKo3g0aq-PqeK2LEZUJnkCeIM-1RjLCaZanLVvtXyG_9xoRkiDEiL8pI6w/exec';
+    
+    const btn = this.querySelector('button[type="submit"]');
+    const originalText = btn.textContent;
+    btn.textContent = 'Enviando...';
+    btn.disabled = true;
+
+    fetch(scriptURL, {
+        method: 'POST',
+        body: JSON.stringify({
+            calificacion: rating,
+            comentario: comments,
+            test: 'Brújula emocional'
+        }),
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+    })
+    .then(r => r.json())
+    .then(data => {
+        this.classList.add('hidden');
+        $("#feedback-success").classList.remove('hidden');
+        btn.textContent = originalText;
+        btn.disabled = false;
+    })
+    .catch(error => {
+        btn.textContent = 'Error. Intenta de nuevo';
+        btn.disabled = false;
+    });
+});
+
+})();
+</script>
+</body>
+</html>
