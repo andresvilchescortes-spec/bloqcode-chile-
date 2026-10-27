@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Medidor de Emociones | Bloqcode.cl</title>
+    <title>Medidor de Emociones</title>
 
     <!-- SEO y Metaetiquetas -->
     <meta name="description" content="Test interactivo para medir y descubrir tus emociones exactas en momentos críticos. Evalúa tu nivel de energía y agradabilidad para recibir consejos de autorregulación.">
@@ -11,123 +11,45 @@
     <meta name="author" content="Bloqcode">
     <meta name="robots" content="index, follow">
 
-    <!-- Open Graph / Redes Sociales (Facebook, WhatsApp, LinkedIn) -->
+    <!-- Open Graph / Redes Sociales -->
     <meta property="og:type" content="website">
     <meta property="og:title" content="Medidor de Emociones | Descubre exactamente cómo te sientes">
     <meta property="og:description" content="Realiza este breve test para ubicar tu estado de ánimo en el mapa emocional y recibe pautas personalizadas.">
-    <!-- Opcional: Agrega la URL de una imagen tuya para que se vea al compartir el link -->
     <!-- <meta property="og:image" content="https://tudominio.cl/ruta-a-imagen-preview.jpg"> -->
 
-    <!-- Twitter Cards -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Medidor de Emociones">
-    <meta name="twitter:description" content="Test interactivo para medir y descubrir tus emociones exactas en momentos críticos.">
-    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #111827; /* Dark theme */
-            color: #f3f4f6;
-        }
+        body { font-family: 'Inter', sans-serif; background-color: #111827; color: #f3f4f6; }
         
-        /* Custom styling for sliders */
-        input[type=range] {
-            -webkit-appearance: none;
-            width: 100%;
-            background: transparent;
-        }
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            height: 20px;
-            width: 20px;
-            border-radius: 50%;
-            background: #3b82f6;
-            cursor: pointer;
-            margin-top: -8px;
-            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
-        }
-        input[type=range]::-webkit-slider-runnable-track {
-            width: 100%;
-            height: 6px;
-            cursor: pointer;
-            background: #374151;
-            border-radius: 4px;
-        }
-        input[type=range]:focus {
-            outline: none;
-        }
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 20px; width: 20px; border-radius: 50%; background: #3b82f6; cursor: pointer; margin-top: -8px; box-shadow: 0 0 10px rgba(59, 130, 246, 0.5); }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px; cursor: pointer; background: #374151; border-radius: 4px; }
+        input[type=range]:focus { outline: none; }
         
-        /* Matrix Grid Styles */
-        .emotion-grid {
-            display: grid;
-            grid-template-columns: repeat(10, 1fr);
-            grid-template-rows: repeat(10, 1fr);
-            gap: 2px;
-            width: 100%;
-            max-width: 800px;
-            aspect-ratio: 1 / 1;
-            margin: 0 auto;
-        }
+        .emotion-grid { display: grid; grid-template-columns: repeat(10, 1fr); grid-template-rows: repeat(10, 1fr); gap: 2px; width: 100%; max-width: 800px; aspect-ratio: 1 / 1; margin: 0 auto; }
+        .grid-cell { display: flex; align-items: center; justify-content: center; text-align: center; font-size: 0.5rem; padding: 2px; border-radius: 2px; transition: all 0.3s ease; color: rgba(255,255,255,0.8); border: 1px solid transparent; overflow: hidden; word-wrap: break-word; }
+        @media (min-width: 768px) { .grid-cell { font-size: 0.7rem; } }
         
-        .grid-cell {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            font-size: 0.5rem;
-            padding: 2px;
-            border-radius: 2px;
-            transition: all 0.3s ease;
-            color: rgba(255,255,255,0.8);
-            border: 1px solid transparent;
-            overflow: hidden;
-            word-wrap: break-word;
-        }
+        .quad-tl { background-color: #d97706; } .quad-tl:nth-child(-n+30) { background-color: #c2410c; } 
+        .quad-tr { background-color: #22c55e; } .quad-tr:nth-child(even) { background-color: #16a34a; }
+        .quad-bl { background-color: #ef4444; } .quad-bl:nth-child(even) { background-color: #be123c; } 
+        .quad-br { background-color: #eab308; color: #422006;} .quad-br:nth-child(even) { background-color: #facc15; }
 
-        @media (min-width: 768px) {
-            .grid-cell { font-size: 0.7rem; }
-        }
-        
-        /* Colors */
-        .quad-tl { background-color: #d97706; } 
-        .quad-tl:nth-child(-n+30) { background-color: #c2410c; } 
-        .quad-tr { background-color: #22c55e; } 
-        .quad-tr:nth-child(even) { background-color: #16a34a; }
-        .quad-bl { background-color: #ef4444; }
-        .quad-bl:nth-child(even) { background-color: #be123c; } 
-        .quad-br { background-color: #eab308; color: #422006;}
-        .quad-br:nth-child(even) { background-color: #facc15; }
-
-        /* Highlighted Cell Animation */
-        .highlighted-cell {
-            border: 3px solid #ffffff;
-            box-shadow: 0 0 15px 5px rgba(255, 255, 255, 0.7);
-            z-index: 10;
-            transform: scale(1.2);
-            font-weight: bold;
-            color: #ffffff;
-        }
-
-        .highlight-text {
-            background: linear-gradient(to right, #60a5fa, #a78bfa);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+        .highlighted-cell { border: 3px solid #ffffff; box-shadow: 0 0 15px 5px rgba(255, 255, 255, 0.7); z-index: 10; transform: scale(1.2); font-weight: bold; color: #ffffff; }
+        .highlight-text { background: linear-gradient(to right, #60a5fa, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     </style>
 </head>
-< class="min-h-screen p-4 md:p-8">
+<body class="min-h-screen p-4 md:p-8">
 
     <div class="max-w-4xl mx-auto">
-        <!-- Header -->
         <header class="text-center mb-10">
             <h1 class="text-4xl md:text-5xl font-extrabold mb-4 highlight-text">Medidor de Emociones</h1>
             <p class="text-gray-400 text-lg">Descubre exactamente cómo te sientes a través de este breve test.</p>
         </header>
 
         <!-- Selección de Duración -->
-        <div id="config-container" class="bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-10 mb-8 max-w-2xl mx-auto">
+        <div id="config-container" class="bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-10 mb-8 max-w-2xl mx-auto border border-gray-700">
             <h2 class="text-2xl font-bold text-center mb-6 text-gray-200">Selecciona la duración del test:</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <button onclick="startTest(5)" class="bg-gray-700 hover:bg-gray-600 border border-gray-600 text-left p-4 rounded-xl transition duration-300">
@@ -147,16 +69,19 @@
                     <span class="text-sm text-gray-400">Inventario completo detallado.</span>
                 </button>
             </div>
+            
             <div class="mt-8 pt-6 border-t border-gray-700 text-center">
                 <p class="text-gray-400 mb-3 text-sm">¿Tienes prisa o es una emergencia?</p>
-                <a href="medidor-emocional-basico.html" class="inline-block bg-transparent border border-blue-500 text-blue-400 hover:bg-blue-900 hover:text-blue-300 font-semibold py-2 px-6 rounded-lg transition duration-300">
+                <a href="basico.html" class="inline-block bg-transparent border border-blue-500 text-blue-400 hover:bg-blue-900 hover:text-blue-300 font-semibold py-2 px-6 rounded-lg transition duration-300 mb-4">
                     Ir al Medidor Básico (2 preguntas)
                 </a>
+                <br>
+                <a href="index.html" class="text-sm text-gray-500 hover:text-blue-400 underline transition">Volver al Menú Principal</a>
             </div>
         </div>
 
         <!-- Main Interface -->
-        <div id="test-container" class="hidden bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-10">
+        <div id="test-container" class="hidden bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-10 border border-gray-700">
             <div class="flex justify-between items-center mb-6">
                 <p class="text-sm text-gray-400">Selecciona un valor del 1 al 10 (1 = En desacuerdo, 10 = De acuerdo).</p>
                 <button onclick="resetApp()" class="text-sm text-blue-400 hover:text-blue-300 underline">Cambiar duración</button>
@@ -164,7 +89,6 @@
             
             <form id="emotion-form" class="space-y-8">
                 <div id="questions-list" class="space-y-4"></div>
-
                 <div class="pt-6 border-t border-gray-700">
                     <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-8 rounded-xl transition duration-300 shadow-lg hover:shadow-blue-500/50">
                         Analizar mis emociones
@@ -175,7 +99,7 @@
 
         <!-- Results Interface -->
         <div id="results-container" class="hidden space-y-8">
-            <div class="bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-10 text-center">
+            <div class="bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-10 text-center border border-gray-700">
                 <h2 class="text-2xl text-gray-400 font-semibold mb-2">Tu estado emocional actual es:</h2>
                 <div id="result-emotion" class="text-5xl md:text-7xl font-extrabold capitalize mb-2 highlight-text"></div>
                 <div id="result-quadrant-title" class="text-xl text-gray-300 mb-6 font-semibold"></div>
@@ -193,12 +117,17 @@
 
                 <div id="result-description" class="text-lg text-gray-300 italic mb-8 max-w-2xl mx-auto bg-gray-900 p-6 rounded-xl border border-gray-700 shadow-inner"></div>
                 
-                <button id="btn-reset" class="bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded-lg transition duration-300 mb-8">
-                    Hacer el test de nuevo
-                </button>
+                <div class="flex flex-col md:flex-row justify-center gap-4 mb-4">
+                    <button id="btn-reset" class="bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded-lg transition duration-300">
+                        Hacer el test de nuevo
+                    </button>
+                    <a href="index.html" class="bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded-lg transition duration-300 inline-block">
+                        Volver al Menú Principal
+                    </a>
+                </div>
             </div>
 
-            <!-- Feedback Form Section (NUEVO) -->
+            <!-- Feedback Form -->
             <div class="bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-8 max-w-2xl mx-auto border border-gray-700">
                 <h3 class="text-xl font-bold text-gray-200 mb-2 text-center">¿Qué te pareció el test?</h3>
                 <p class="text-sm text-gray-400 text-center mb-6">Tu retroalimentación nos ayuda a mejorar esta herramienta (Opcional)</p>
@@ -233,20 +162,15 @@
             </div>
 
             <!-- Visual Matrix -->
-            <div class="bg-gray-800 rounded-2xl shadow-2xl p-4 md:p-8 overflow-x-auto mt-8">
+            <div class="bg-gray-800 rounded-2xl shadow-2xl p-4 md:p-8 overflow-x-auto mt-8 border border-gray-700">
                 <h3 class="text-xl font-semibold mb-6 text-center text-gray-300">Mapa Emocional</h3>
-                
                 <div class="flex flex-col items-center min-w-[600px]">
                     <div class="w-full text-center text-sm text-gray-400 mb-2 font-bold tracking-widest">+ ENERGÍA</div>
-                    
                     <div class="flex items-center w-full justify-center">
                         <div class="text-sm text-gray-400 mr-4 font-bold tracking-widest" style="writing-mode: vertical-rl; transform: rotate(180deg);">DESAGRADABLE</div>
-                        
                         <div id="matrix-grid" class="emotion-grid bg-gray-900 border-2 border-gray-700"></div>
-                        
                         <div class="text-sm text-gray-400 ml-4 font-bold tracking-widest" style="writing-mode: vertical-rl;">AGRADABLE</div>
                     </div>
-                    
                     <div class="w-full text-center text-sm text-gray-400 mt-2 font-bold tracking-widest">- ENERGÍA</div>
                 </div>
             </div>
@@ -254,7 +178,6 @@
     </div>
 
     <script>
-        // 1. Banco de 30 Preguntas
         const questionBank = [
             { id: 'p1', type: 'pleasantness', inverted: false, text: "Siento una sensación cálida, de bienestar y profunda paz en mi interior." },
             { id: 'p2', type: 'pleasantness', inverted: false, text: "Percibo mi cuerpo y mente en armonía, sintiéndome afortunado(a) y cómodo(a) con quien soy." },
@@ -271,7 +194,6 @@
             { id: 'p13', type: 'pleasantness', inverted: true, text: "Me siento solo(a), incomprendido(a) o con una pesadez emocional agobiante." },
             { id: 'p14', type: 'pleasantness', inverted: false, text: "Siento una paz tan serena que me reconforta plenamente por dentro." },
             { id: 'p15', type: 'pleasantness', inverted: true, text: "Siento que el entorno me supera, experimentando rechazo o aislamiento social." },
-
             { id: 'e1', type: 'energy', inverted: false, text: "Siento mi cuerpo lleno de electricidad, con pulsaciones rápidas o tensión acumulada." },
             { id: 'e2', type: 'energy', inverted: false, text: "Mis pensamientos van a mil por hora, me cuesta frenar la mente o concentrarme." },
             { id: 'e3', type: 'energy', inverted: true, text: "Siento una fatiga profunda, mis párpados pesan y me cuesta levantarme." },
@@ -289,10 +211,9 @@
             { id: 'e15', type: 'energy', inverted: false, text: "Siento una hiperactividad mental y física impulsiva, me siento agitado." }
         ];
 
-        // 20 Cuadrantes Descriptivos
         const quadrants20 = [
             { minX: 1, maxX: 5, minY: 8, maxY: 10, title: "Alta Tensión Displacentera", desc: "Estás experimentando un pico de energía muy alto con sensaciones sumamente desagradables (ansiedad, pánico o rabia). Tu sistema nervioso simpático está disparado. Acción recomendada: Haz respiraciones diafragmáticas largas, toma agua fría y aléjate de estímulos intensos." },
-            { minX: 6, maxX: 10, minY: 8, maxY: 10, title: "Alta Energía Placentera", desc: "Tienes una energía desbordante y positiva. Te sientes con alegría, inspirción y con ganas de comerte el mundo. Acción recomendada: Canaliza este impulso hacia la creatividad, el movimiento o comparte tu alegría con tu entorno de forma constructiva." },
+            { minX: 6, maxX: 10, minY: 8, maxY: 10, title: "Alta Energía Placentera", desc: "Tienes una energía desbordante y positiva. Te sientes con alegría, inspiración y con ganas de comerte el mundo. Acción recomendada: Canaliza este impulso hacia la creatividad, el movimiento o comparte tu alegría con tu entorno de forma constructiva." },
             { minX: 1, maxX: 5, minY: 5, maxY: 7, title: "Displacer Moderado-Alto", desc: "Hay una fricción importante en tu día. Sientes tensión o frustración que consume tu energía de forma latente. Acción recomendada: Identifica el gatillante exacto. Escribe lo que te molesta para sacarlo de tu cabeza y haz una pausa activa estirando los músculos." },
             { minX: 6, maxX: 10, minY: 5, maxY: 7, title: "Bienestar Activo", desc: "Tu energía es dinámicamente buena. Estás en un punto óptimo de productividad, motivación y agrado. Acción recomendada: Aprovecha este estado para avanzar en pendientes importantes, planificar proyectos o disfrutar de una conversación estimulante." },
             { minX: 1, maxX: 5, minY: 3, maxY: 4, title: "Desánimo y Baja Energía", desc: "Tu energía está decayendo hacia zonas de tristeza o desmotivación. Sientes el cuerpo pesado y poco agrado. Acción recomendada: Sé amable contigo. No te exijas de más; permítete procesar la emoción o sal a tomar aire fresco 5 minutos." },
@@ -326,12 +247,10 @@
                     cell.className = 'grid-cell';
                     cell.id = `cell-${r}-${c}`;
                     cell.innerText = emotionMatrix[r][c];
-                    
                     if (r < 5 && c < 5) cell.classList.add('quad-tl');
                     else if (r < 5 && c >= 5) cell.classList.add('quad-tr');
                     else if (r >= 5 && c < 5) cell.classList.add('quad-bl');
                     else cell.classList.add('quad-br');
-
                     matrixGrid.appendChild(cell);
                 }
             }
@@ -341,12 +260,10 @@
         function startTest(count) {
             let pleasureQ = questionBank.filter(q => q.type === 'pleasantness').sort(() => 0.5 - Math.random());
             let energyQ = questionBank.filter(q => q.type === 'energy').sort(() => 0.5 - Math.random());
-            
             let half = Math.ceil(count / 2);
             currentQuestions = [...pleasureQ.slice(0, half), ...energyQ.slice(0, count - half)].sort(() => 0.5 - Math.random());
             
             renderQuestions();
-
             document.getElementById('config-container').classList.add('hidden');
             document.getElementById('test-container').classList.remove('hidden');
         }
@@ -377,14 +294,11 @@
 
         document.getElementById('emotion-form').addEventListener('submit', function(e) {
             e.preventDefault();
-            
-            let totalEnergy = 0, countEnergy = 0;
-            let totalPleasure = 0, countPleasure = 0;
+            let totalEnergy = 0, countEnergy = 0, totalPleasure = 0, countPleasure = 0;
 
             currentQuestions.forEach(q => {
                 let val = parseInt(document.getElementById(q.id).value);
                 if (q.inverted) val = 11 - val;
-
                 if (q.type === 'energy') { totalEnergy += val; countEnergy++; }
                 else { totalPleasure += val; countPleasure++; }
             });
@@ -399,18 +313,13 @@
             let c = pleasantness - 1;
             let detectedEmotion = emotionMatrix[r][c];
 
-            let matchedQ = quadrants20.find(q => 
-                pleasantness >= q.minX && pleasantness <= q.maxX && energy >= q.minY && energy <= q.maxY
-            );
-
-            let finalTitle = matchedQ ? matchedQ.title : "Transición Emocional";
-            let finalDesc = matchedQ ? matchedQ.desc : "Te encuentras en un punto de transición sin una polarización extrema.";
+            let matchedQ = quadrants20.find(q => pleasantness >= q.minX && pleasantness <= q.maxX && energy >= q.minY && energy <= q.maxY);
 
             document.getElementById('result-emotion').innerText = detectedEmotion;
-            document.getElementById('result-quadrant-title').innerText = `Zona: ${finalTitle}`;
+            document.getElementById('result-quadrant-title').innerText = `Zona: ${matchedQ ? matchedQ.title : "Transición Emocional"}`;
             document.getElementById('result-energy').innerText = energy + " / 10";
             document.getElementById('result-pleasantness').innerText = pleasantness + " / 10";
-            document.getElementById('result-description').innerText = finalDesc;
+            document.getElementById('result-description').innerText = matchedQ ? matchedQ.desc : "Te encuentras en un punto de transición sin una polarización extrema.";
 
             document.querySelectorAll('.grid-cell').forEach(cell => cell.classList.remove('highlighted-cell'));
             const targetCell = document.getElementById(`cell-${r}-${c}`);
@@ -421,17 +330,13 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         });
 
-// Lógica del formulario de Feedback conectada a Google Sheets
+        // Formulario de Feedback
         document.getElementById('feedback-form').addEventListener('submit', function(e) {
             e.preventDefault();
-            
             const rating = document.getElementById('feedback-rating').value;
             const comments = document.getElementById('feedback-text').value;
-            
-            // Pega aquí la URL generada en Apps Script
             const scriptURL = 'https://script.google.com/macros/s/AKfycbzK90UAGYVDJKo3g0aq-PqeK2LEZUJnkCeIM-1RjLCaZanLVvtXyG_9xoRkiDEiL8pI6w/exec';
 
-            // Cambiamos el texto del botón temporalmente para dar feedback visual
             const btn = this.querySelector('button[type="submit"]');
             const originalText = btn.innerText;
             btn.innerText = 'Enviando...';
@@ -441,13 +346,10 @@
                 method: 'POST',
                 body: JSON.stringify({
                     calificacion: rating,
-                    comentario: comments
+                    comentario: comments,
                     test: 'Medidor emocional'
                 }),
-                // Usamos text/plain para evitar bloqueos de CORS en el navegador
-                headers: {
-                    'Content-Type': 'text/plain;charset=utf-8',
-                }
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' }
             })
             .then(response => response.json())
             .then(data => {
@@ -462,24 +364,20 @@
                 btn.disabled = false;
             });
         });
+
+        document.getElementById('btn-reset').addEventListener('click', resetApp);
+
         function resetApp() {
             document.getElementById('emotion-form').reset();
-            
-            // Restaurar feedback form
             document.getElementById('feedback-form').reset();
             document.getElementById('val-rating').innerText = '5 ★';
             document.getElementById('feedback-form').classList.remove('hidden');
             document.getElementById('feedback-success').classList.add('hidden');
-
             document.getElementById('results-container').classList.add('hidden');
             document.getElementById('test-container').classList.add('hidden');
             document.getElementById('config-container').classList.remove('hidden');
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     </script>
-    <!-- Botón flotante Bloqcode -->
-<a href="https://bloqcode.cl" class="fixed bottom-4 right-4 bg-slate-800 hover:bg-indigo-600 text-slate-300 hover:text-white px-4 py-2 rounded-xl border border-slate-700 hover:border-indigo-500 shadow-lg transition-all flex items-center gap-2 z-50 text-xs sm:text-sm font-semibold font-game">
-  <i class="fa-solid fa-house"></i> Volver a Bloqcode
-</a>
 </body>
 </html>
