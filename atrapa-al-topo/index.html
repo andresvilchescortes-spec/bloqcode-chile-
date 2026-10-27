@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <!-- Viewport configurado para móviles, previene el zoom indeseado al tocar rápido -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Atrapa al Topo - Stimming Game</title>
+    <!-- Incluimos Tailwind CSS para estilos rápidos y responsivos -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Deshabilitamos comportamientos táctiles por defecto para que sea un juego rápido */
+        body {
+            touch-action: manipulation; 
+            -webkit-user-select: none;
+            user-select: none;
+            background-color: #86efac; /* bg-green-300 */
+            background-image: radial-gradient(#4ade80 20%, transparent 20%), radial-gradient(#4ade80 20%, transparent 20%);
+            background-position: 0 0, 25px 25px;
+            background-size: 50px 50px;
+        }
+
+        /* Contenedor del tablero */
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            width: 100%;
+            max-width: 450px;
+            margin: 0 auto;
+            padding: 20px;
+            background: rgba(255,255,255,0.4);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        /* Estilo para los agujeros */
+        .hole {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            background: #3e2723; /* Marrón oscuro */
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden; /* Esto es clave para que el topo "desaparezca" al bajar */
+            border: 8px solid #5d4037; /* Borde más claro */
+            box-shadow: inset 0 15px 25px rgba(0,0,0,0.9), 0 5px 10px rgba(0,0,0,0.2);
+        }
+
+        /* Estilo base para el topo (emoji) */
+        .mole {
+            font-size: 4.5rem; /* Tamaño del emoji */
+            line-height: 1;
+            position: absolute;
+            bottom: -100%; /* Escondido por defecto abajo del agujero */
+            left: 50%;
+            transform: translateX(-50%);
+            transition: bottom 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Movimiento suave */
+            cursor: pointer;
+            touch-action: none; /* Previene scroll si se arrastra el dedo en móvil */
+        }
+
+        /* Clase que sube al topo */
+        .mole.up {
+            bottom: 5%;
+        }
+
+        /* Animación para cuando ganas puntos */
+        @keyframes popScore {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.5); color: #16a34a; }
+            100% { transform: scale(1); }
+        }
+        .score-pop {
+            animation: popScore 0.3s ease;
+        }
+
+        /* Ajustes responsivos para móviles pequeños */
+        @media (max-width: 400px) {
+            .mole { font-size: 3.5rem; }
+            .hole { border-width: 5px; }
+            .game-board { gap: 10px; padding: 10px; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center py-4 font-sans">
+
+    <!-- Botón de volver a Bloqcode -->
+    <a href="https://bloqcode.cl" class="absolute top-4 left-4 bg-white/90 hover:bg-white text-green-700 font-bold py-2 px-4 rounded-xl shadow-md transition-all text-sm sm:text-base flex items-center gap-2 hover:scale-105 z-40 border-2 border-green-200">
+        <span>⬅️</span> <span class="hidden sm:inline">Volver a</span> Bloqcode
+    </a>
+
+    <!-- Encabezado del Juego -->
+    <header class="text-center mb-6 w-full max-w-[450px] px-4 mt-12 sm:mt-0">
+        <h1 class="text-4xl sm:text-5xl font-extrabold text-green-900 drop-shadow-md mb-6 tracking-tight">
+            Atrapa al Topo
+        </h1>
+        
+        <!-- Marcadores (Score y Tiempo) -->
+        <div class="flex justify-between items-center bg-white rounded-2xl p-4 shadow-lg mb-6 border-4 border-green-200">
+            <div class="text-xl sm:text-2xl font-bold text-gray-700">
+                Puntos: <span id="score" class="text-green-600 inline-block transition-transform">0</span>
+            </div>
+            <div class="text-xl sm:text-2xl font-bold text-gray-700">
+                Tiempo: <span id="time" class="text-red-500">30</span>s
+            </div>
+        </div>
+    </header>
+
+    <!-- Tablero 3x3 -->
+    <main class="game-board">
+        <div class="hole"><div class="mole" draggable="false">🐹</div></div>
+        <div class="hole"><div class="mole" draggable="false">🐹</div></div>
+        <div class="hole"><div class="mole" draggable="false">🐹</div></div>
+        <div class="hole"><div class="mole" draggable="false">🐹</div></div>
+        <div class="hole"><div class="mole" draggable="false">🐹</div></div>
+        <div class="hole"><div class="mole" draggable="false">🐹</div></div>
+        <div class="hole"><div class="mole" draggable="false">🐹</div></div>
+        <div class="hole"><div class="mole" draggable="false">🐹</div></div>
+        <div class="hole"><div class="mole" draggable="false">🐹</div></div>
+    </main>
+
+    <!-- Controles -->
+    <div class="mt-8">
+        <button id="start-btn" class="bg-blue-600 hover:bg-blue-500 text-white font-black py-4 px-10 rounded-full shadow-[0_8px_0_#1d4ed8] hover:shadow-[0_4px_0_#1d4ed8] hover:translate-y-1 transition-all active:shadow-none active:translate-y-2 text-2xl uppercase tracking-wider">
+            ¡Jugar!
+        </button>
+    </div>
+
+    <!-- Pantalla de Inicio (Modal) -->
+    <div id="start-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl p-8 text-center max-w-sm w-full shadow-2xl border-4 border-green-400 transform transition-transform">
+            <h2 id="welcome-title" class="text-3xl font-extrabold text-gray-800 mb-2">¡Atrapa al Topo!</h2>
+            
+            <div id="highscore-container" class="hidden mb-4 bg-green-100 rounded-xl p-3 border border-green-300">
+                <p class="text-gray-700 font-bold">Tu mejor marca es: <span id="hs-display" class="text-green-600 text-2xl ml-1">0</span></p>
+            </div>
+
+            <div class="mb-6 mt-4">
+                <label for="player-name" class="block text-gray-700 text-sm font-bold mb-2">¿Cómo te llamas? (opcional)</label>
+                <input type="text" id="player-name" class="shadow-inner border-2 border-gray-200 rounded-xl w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:border-green-400 focus:ring-2 focus:ring-green-200 text-center text-lg font-semibold" placeholder="Tu nombre">
+            </div>
+            
+            <button id="modal-start-btn" class="bg-green-500 hover:bg-green-600 text-white font-black py-3 px-8 rounded-full text-xl w-full shadow-[0_6px_0_#16a34a] active:shadow-none active:translate-y-1 transition-all uppercase tracking-wide">
+                ¡Comenzar!
+            </button>
+        </div>
+    </div>
+
+    <!-- Script con la lógica del juego -->
+    <script>
+        // Referencias a los elementos del DOM
+        const holes = document.querySelectorAll('.hole');
+        const moles = document.querySelectorAll('.mole');
+        const scoreDisplay = document.getElementById('score');
+        const timeDisplay = document.getElementById('time');
+        const startBtn = document.getElementById('start-btn');
+
+        // Nuevas referencias para el modal
+        const startModal = document.getElementById('start-modal');
+        const playerNameInput = document.getElementById('player-name');
+        const welcomeTitle = document.getElementById('welcome-title');
+        const highscoreContainer = document.getElementById('highscore-container');
+        const hsDisplay = document.getElementById('hs-display');
+        const modalStartBtn = document.getElementById('modal-start-btn');
+
+        // Variables de estado del juego
+        let lastHole;
+        let timeUp = false;
+        let score = 0;
+        let countdown;
+        let gameTime = 30; // Tiempo en segundos por partida
+        
+        // Variables de dificultad (velocidad de los topos)
+        let minPopTime = 500;
+        let maxPopTime = 1200;
+
+        // Variables de LocalStorage
+        let savedName = localStorage.getItem('bloqcode_mole_name') || '';
+        let savedScore = parseInt(localStorage.getItem('bloqcode_mole_highscore')) || 0;
+
+        // Inicializar el modal al cargar la página
+        function initGame() {
+            if (savedName) {
+                welcomeTitle.textContent = `¡Hola, ${savedName}!`;
+                playerNameInput.value = savedName;
+            }
+            if (savedScore > 0) {
+                highscoreContainer.classList.remove('hidden');
+                hsDisplay.textContent = savedScore;
+            }
+        }
+        
+        // Ejecutar inicialización
+        initGame();
+
+        /**
+         * Genera un tiempo aleatorio entre un mínimo y un máximo (en milisegundos)
+         */
+        function randomTime(min, max) {
+            return Math.round(Math.random() * (max - min) + min);
+        }
+
+        /**
+         * Selecciona un agujero al azar, asegurándose de que no sea el mismo de la última vez.
+         */
+        function randomHole(holesList) {
+            const idx = Math.floor(Math.random() * holesList.length);
+            const hole = holesList[idx];
+            if (hole === lastHole) {
+                return randomHole(holesList); // Recursión si se repite el hoyo
+            }
+            lastHole = hole;
+            return hole;
+        }
+
+        /**
+         * Hace que un topo aparezca y luego desaparezca.
+         */
+        function peep() {
+            const time = randomTime(minPopTime, maxPopTime);
+            const hole = randomHole(holes);
+            const mole = hole.querySelector('.mole');
+            
+            // Asegurarse de que muestre la cara normal
+            mole.textContent = '🐹'; 
+            mole.style.transform = 'translateX(-50%) scale(1)';
+            
+            // Subir al topo agregando la clase CSS
+            mole.classList.add('up');
+
+            // Bajarlo después del tiempo calculado
+            setTimeout(() => {
+                mole.classList.remove('up');
+                // Si el juego no ha terminado, llamar a peep() otra vez
+                if (!timeUp) peep();
+            }, time);
+        }
+
+        /**
+         * Inicia o reinicia el juego.
+         */
+        function startGame() {
+            // Reiniciar valores
+            scoreDisplay.textContent = '0';
+            timeUp = false;
+            score = 0;
+            gameTime = 30;
+            minPopTime = 500;
+            maxPopTime = 1200;
+            timeDisplay.textContent = gameTime;
+            
+            // Cambiar estado del botón
+            startBtn.disabled = true;
+            startBtn.classList.add('opacity-50', 'pointer-events-none');
+            
+            // Iniciar la aparición de topos
+            peep();
+
+            // Temporizador de cuenta regresiva
+            countdown = setInterval(() => {
+                gameTime--;
+                timeDisplay.textContent = gameTime;
+                
+                // Fin del juego
+                if (gameTime <= 0) {
+                    clearInterval(countdown);
+                    timeUp = true;
+                    startBtn.disabled = false;
+                    startBtn.classList.remove('opacity-50', 'pointer-events-none');
+                    startBtn.textContent = 'Jugar de nuevo';
+                    // Pequeña alerta amigable con el puntaje
+                    setTimeout(() => showGameOverMessage(), 500); 
+                }
+            }, 1000);
+        }
+
+        /**
+         * Lógica al tocar o hacer clic en un topo.
+         */
+        function whack(e) {
+            // Para prevenir trampas simulando clics por código
+            if (!e.isTrusted) return; 
+            
+            // Si el topo no está asomado (up), no hacemos nada
+            if (!this.classList.contains('up')) return; 
+
+            // Sumar puntos
+            score++;
+            
+            // Efecto visual: cambiar emoji a impacto y bajarlo inmediatamente
+            this.textContent = '💥';
+            this.classList.remove('up');
+            
+            // Actualizar marcador con animación
+            scoreDisplay.textContent = score;
+            scoreDisplay.classList.remove('score-pop');
+            // Forzar reflow para reiniciar la animación
+            void scoreDisplay.offsetWidth; 
+            scoreDisplay.classList.add('score-pop');
+
+            // Aumentar la dificultad gradualmente (más rápido cada 5 puntos)
+            if(score % 5 === 0 && maxPopTime > 400) {
+                maxPopTime -= 100;
+                minPopTime -= 50;
+            }
+        }
+
+        /**
+         * Muestra un mensaje al final del juego utilizando DOM en lugar de un `alert()` nativo
+         */
+        function showGameOverMessage() {
+            // Comprobar si hay nuevo récord
+            let isNewRecord = false;
+            if (score > savedScore) {
+                savedScore = score;
+                localStorage.setItem('bloqcode_mole_highscore', savedScore);
+                isNewRecord = true;
+                
+                // Actualizar el texto del modal de inicio para la próxima vez que recargue
+                highscoreContainer.classList.remove('hidden');
+                hsDisplay.textContent = savedScore;
+            }
+
+            const msgBox = document.createElement('div');
+            msgBox.className = 'fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4';
+            msgBox.innerHTML = `
+                <div class="bg-white rounded-3xl p-8 text-center max-w-sm w-full shadow-2xl transform scale-100 transition-transform">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">¡Tiempo agotado! ⏳</h2>
+                    ${isNewRecord ? '<div class="bg-yellow-100 text-yellow-800 font-bold py-1 px-3 rounded-full inline-block mb-3 animate-bounce">¡NUEVO RÉCORD! 🏆</div>' : ''}
+                    <p class="text-xl text-gray-600 mb-6">Conseguiste atrapar <span class="font-bold text-green-600 text-4xl block mt-2">${score}</span></p>
+                    <button class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-full text-lg w-full" onclick="this.parentElement.parentElement.remove()">
+                        ¡Aceptar!
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(msgBox);
+        }
+
+        // --- Asignación de Eventos ---
+
+        // Usamos 'pointerdown' en lugar de 'click'.
+        // 'pointerdown' es más rápido y universal: captura clics de ratón, toques táctiles y lápices, 
+        // eliminando el pequeño retraso (delay) de 300ms de los dispositivos móviles antiguos.
+        moles.forEach(mole => {
+            mole.addEventListener('pointerdown', function(e) {
+                e.preventDefault(); // Previene comportamientos extraños de drag & drop o zoom en móviles
+                whack.call(this, e);
+            });
+        });
+
+        // Botón de jugar
+        startBtn.addEventListener('click', startGame);
+
+        // Nuevo evento para el botón del modal de inicio
+        modalStartBtn.addEventListener('click', () => {
+            const currentName = playerNameInput.value.trim();
+            if (currentName) {
+                localStorage.setItem('bloqcode_mole_name', currentName);
+                savedName = currentName;
+            }
+            
+            // Ocultar modal
+            startModal.style.display = 'none';
+            
+            // Iniciar el juego automáticamente
+            startGame();
+        });
+
+    </script>
+</body>
+</html>
