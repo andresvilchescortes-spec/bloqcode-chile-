@@ -16,12 +16,10 @@
     </style>
 </head>
 <body class="min-h-screen p-4 md:p-8 flex items-center justify-center">
-
     <div class="w-full max-w-lg bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-10 border border-gray-700">
         <h1 class="text-3xl font-extrabold mb-8 text-center highlight-text">Medidor Básico</h1>
         
         <div class="space-y-8">
-            <!-- Pregunta 1: Agradabilidad -->
             <div>
                 <label class="block text-lg font-medium text-gray-200 mb-4">1. Lo que siento es agradable</label>
                 <div class="flex items-center gap-4">
@@ -31,7 +29,6 @@
                 </div>
             </div>
 
-            <!-- Pregunta 2: Energía -->
             <div>
                 <label class="block text-lg font-medium text-gray-200 mb-4">2. Siento mucha energía</label>
                 <div class="flex items-center gap-4">
@@ -41,14 +38,12 @@
                 </div>
             </div>
 
-            <!-- Botón VER -->
             <div class="pt-4 flex justify-center">
                 <button onclick="calcularBasico()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-12 rounded-xl transition duration-300 shadow-lg hover:shadow-blue-500/50 text-xl tracking-widest">
                     VER
                 </button>
             </div>
 
-            <!-- Resultado -->
             <div class="pt-6 border-t border-gray-700 mt-6 text-center">
                 <p class="text-gray-400 text-lg mb-2">Tu estado emocional es:</p>
                 <div class="bg-gray-900 border-2 border-gray-600 rounded-xl p-6 min-h-[120px] flex flex-col items-center justify-center transition-all duration-300">
@@ -57,9 +52,36 @@
                     <p id="resultado-desc" class="text-sm text-gray-300 italic leading-relaxed hidden px-2"></p>
                 </div>
             </div>
+
+            <!-- Feedback Form -->
+            <div id="feedback-section" class="mt-8 pt-6 border-t border-gray-700 hidden">
+                <h3 class="text-lg font-bold text-gray-200 mb-2 text-center">¿Qué te pareció el test?</h3>
+                <p class="text-xs text-gray-400 text-center mb-4">Tu retroalimentación nos ayuda a mejorar (Opcional)</p>
+                
+                <form id="feedback-form" class="space-y-4">
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="text-sm font-medium text-gray-300">Calificación</label>
+                            <span id="val-rating" class="text-lg font-bold text-yellow-400">5 ★</span>
+                        </div>
+                        <input type="range" id="feedback-rating" min="1" max="5" value="5" class="w-full" oninput="document.getElementById('val-rating').innerText = this.value + ' ★'">
+                    </div>
+                    <div>
+                        <textarea id="feedback-text" rows="2" class="w-full bg-gray-900 border border-gray-600 rounded-lg p-3 text-gray-200 text-sm focus:outline-none focus:border-blue-500 transition" placeholder="Comentarios o sugerencias..."></textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-300 text-sm">
+                        Enviar opinión
+                    </button>
+                </form>
+                
+                <div id="feedback-success" class="hidden text-center mt-2">
+                    <p class="text-green-400 font-bold text-sm">¡Gracias por tus comentarios!</p>
+                </div>
+            </div>
             
-            <div class="text-center mt-6">
-                <a href="medidor-emociones.html" class="text-sm text-gray-500 hover:text-blue-400 underline transition">Ir al Test Completo (Mayor Precisión)</a>
+            <div class="text-center mt-6 flex justify-around">
+                <a href="index.html" class="text-sm text-gray-500 hover:text-blue-400 underline transition">Ir al Menú</a>
+                <a href="medidor-emociones.html" class="text-sm text-gray-500 hover:text-blue-400 underline transition">Ir al Test Completo</a>
             </div>
         </div>
     </div>
@@ -80,27 +102,23 @@
 
         const quadrants20 = [
             { minX: 1, maxX: 5, minY: 8, maxY: 10, title: "Alta Tensión Displacentera", desc: "Experimentas un pico de energía con sensaciones desagradables (ansiedad, rabia). Acción recomendada: Haz respiraciones diafragmáticas largas, toma agua fría y aléjate de estímulos intensos." },
-            { minX: 6, maxX: 10, minY: 8, maxY: 10, title: "Alta Energía Placentera", desc: "Tienes una energía desbordante y positiva. Te sientes alegre y con ganas de comerte el mundo. Acción recomendada: Canaliza este impulso hacia la creatividad o comparte tu alegría de forma constructiva." },
-            { minX: 1, maxX: 5, minY: 5, maxY: 7, title: "Displacer Moderado-Alto", desc: "Hay fricción en tu día. Sientes tensión o frustración. Acción recomendada: Identifica el gatillante exacto. Escribe lo que te molesta para sacarlo de tu cabeza y haz una pausa estirando los músculos." },
-            { minX: 6, maxX: 10, minY: 5, maxY: 7, title: "Bienestar Activo", desc: "Tu energía es buena. Estás en un punto óptimo de productividad y agrado. Acción recomendada: Aprovecha este estado para avanzar en pendientes, planificar o disfrutar de una conversación." },
-            { minX: 1, maxX: 5, minY: 3, maxY: 4, title: "Desánimo y Baja Energía", desc: "Tu energía decae hacia la tristeza o desmotivación. Sientes el cuerpo pesado. Acción recomendada: Sé amable contigo. No te exijas de más; permítete procesar la emoción o toma aire fresco 5 minutos." },
-            { minX: 6, maxX: 10, minY: 3, maxY: 4, title: "Calma Positiva", desc: "Te encuentras en un estado de equilibrio apacible. No hay urgencias. Acción recomendada: Disfruta del momento presente, lee un buen libro, toca un instrumento o descansa sabiendo que todo está en orden." },
-            { minX: 1, maxX: 5, minY: 1, maxY: 2, title: "Agotamiento Crítico Displacentero", desc: "Tus baterías están al mínimo y las sensaciones son pesadas. Acción recomendada: Detén todo. Cierra los ojos, concéntrate en tu respiración abdominal, busca un espacio seguro y descansa sin culpa." },
-            { minX: 6, maxX: 10, minY: 1, maxY: 2, title: "Paz Profunda y Relajación", desc: "Tu energía es muy baja pero el placer interior es máximo. Acción recomendada: Déjate llevar por el descanso. Es el momento perfecto para recargar energías de forma genuina y sanadora." }
+            { minX: 6, maxX: 10, minY: 8, maxY: 10, title: "Alta Energía Placentera", desc: "Tienes una energía desbordante y positiva. Acción recomendada: Canaliza este impulso hacia la creatividad o comparte tu alegría de forma constructiva." },
+            { minX: 1, maxX: 5, minY: 5, maxY: 7, title: "Displacer Moderado-Alto", desc: "Hay fricción en tu día. Sientes tensión o frustración. Acción recomendada: Identifica el gatillante exacto. Escribe lo que te molesta para sacarlo de tu cabeza y haz una pausa." },
+            { minX: 6, maxX: 10, minY: 5, maxY: 7, title: "Bienestar Activo", desc: "Tu energía es buena. Estás en un punto óptimo de productividad y agrado. Acción recomendada: Aprovecha este estado para avanzar en pendientes o planificar." },
+            { minX: 1, maxX: 5, minY: 3, maxY: 4, title: "Desánimo y Baja Energía", desc: "Tu energía decae hacia la tristeza o desmotivación. Acción recomendada: Sé amable contigo. No te exijas de más; permítete procesar la emoción." },
+            { minX: 6, maxX: 10, minY: 3, maxY: 4, title: "Calma Positiva", desc: "Te encuentras en un estado de equilibrio apacible. No hay urgencias. Acción recomendada: Disfruta del momento presente o descansa sabiendo que todo está en orden." },
+            { minX: 1, maxX: 5, minY: 1, maxY: 2, title: "Agotamiento Crítico Displacentero", desc: "Tus baterías están al mínimo y las sensaciones son pesadas. Acción recomendada: Detén todo. Concéntrate en tu respiración abdominal, busca un espacio seguro y descansa." },
+            { minX: 6, maxX: 10, minY: 1, maxY: 2, title: "Paz Profunda y Relajación", desc: "Tu energía es muy baja pero el placer interior es máximo. Acción recomendada: Déjate llevar por el descanso. Es el momento perfecto para recargar energías de forma genuina." }
         ];
 
         function calcularBasico() {
             let valPlacer = parseInt(document.getElementById('q-placer').value);
             let valEnergia = parseInt(document.getElementById('q-energia').value);
-
             let x = valPlacer - 1;
             let y = 10 - valEnergia;
 
             let detectedEmotion = emotionMatrix[y][x];
-
-            let matchedQ = quadrants20.find(q => 
-                valPlacer >= q.minX && valPlacer <= q.maxX && valEnergia >= q.minY && valEnergia <= q.maxY
-            );
+            let matchedQ = quadrants20.find(q => valPlacer >= q.minX && valPlacer <= q.maxX && valEnergia >= q.minY && valEnergia <= q.maxY);
 
             let finalTitle = matchedQ ? matchedQ.title : "Transición Emocional";
             let finalDesc = matchedQ ? matchedQ.desc : "Te encuentras en un punto de transición sin una polarización extrema.";
@@ -109,7 +127,6 @@
             const zonaElement = document.getElementById('resultado-zona');
             const descElement = document.getElementById('resultado-desc');
 
-            // Ocultar suavemente para el efecto visual
             txtElement.style.opacity = '0';
             zonaElement.style.opacity = '0';
             descElement.style.opacity = '0';
@@ -118,20 +135,48 @@
                 txtElement.innerText = detectedEmotion;
                 zonaElement.innerText = `Zona: ${finalTitle}`;
                 descElement.innerText = finalDesc;
-
                 zonaElement.classList.remove('hidden');
                 descElement.classList.remove('hidden');
+                document.getElementById('feedback-section').classList.remove('hidden');
 
                 txtElement.style.opacity = '1'; 
                 zonaElement.style.opacity = '1'; 
                 descElement.style.opacity = '1'; 
-                
-                txtElement.style.transition = 'opacity 0.3s ease'; 
-                zonaElement.style.transition = 'opacity 0.3s ease'; 
-                descElement.style.transition = 'opacity 0.3s ease'; 
             }, 150);
         }
+
+        document.getElementById('feedback-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const rating = document.getElementById('feedback-rating').value;
+            const comments = document.getElementById('feedback-text').value;
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbzK90UAGYVDJKo3g0aq-PqeK2LEZUJnkCeIM-1RjLCaZanLVvtXyG_9xoRkiDEiL8pI6w/exec';
+            
+            const btn = this.querySelector('button[type="submit"]');
+            const originalText = btn.innerText;
+            btn.innerText = 'Enviando...';
+            btn.disabled = true;
+
+            fetch(scriptURL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    calificacion: rating,
+                    comentario: comments,
+                    test: 'Medidor emocional básico'
+                }),
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+            })
+            .then(r => r.json())
+            .then(data => {
+                this.classList.add('hidden');
+                document.getElementById('feedback-success').classList.remove('hidden');
+                btn.innerText = originalText;
+                btn.disabled = false;
+            })
+            .catch(error => {
+                btn.innerText = 'Error. Intenta de nuevo';
+                btn.disabled = false;
+            });
+        });
     </script>
-    
 </body>
 </html>
