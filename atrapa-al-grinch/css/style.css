@@ -1,0 +1,94 @@
+/* Reseteo básico y configuración del fondo */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #0b132b; /* Color de respaldo oscuro */
+}
+
+#juego-grinch-contenedor {
+  max-width: 800px;
+  margin: 20px auto;
+  text-align: center;
+  font-family: sans-serif;
+  background-image: url('../img/fondo.png'); /* Ruta relativa actualizada */
+  background-size: cover;
+  background-position: bottom;
+  padding: 20px;
+  border-radius: 15px;
+  color: white; 
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+#marcador {
+  display: flex;
+  justify-content: space-around;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.8); /* Para que el texto resalte sobre las estrellas */
+}
+
+#btn-iniciar {
+  padding: 12px 25px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  background-color: #d32f2f;
+  color: white;
+  border: 2px solid #fff;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-bottom: 30px;
+  transition: transform 0.1s, background-color 0.2s;
+}
+
+#btn-iniciar:hover {
+  background-color: #b71c1c;
+}
+
+#btn-iniciar:active {
+  transform: scale(0.95);
+}
+
+/* La Cuadrícula */
+#tablero {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+}
+
+.celda {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden; /* Vital para esconder al Grinch */
+}
+
+.casa {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  z-index: 2;
+  pointer-events: none; /* Los clics pasan a través de la casa hacia el Grinch */
+}
+
+.grinch {
+  width: 25%; /* Ajusta esto si la cabeza queda muy grande o chica en tu casa */
+  position: absolute;
+  bottom: 45%; /* Ajusta esto para que la base del Grinch quede justo tras el borde de la chimenea */
+  right: 12%; /* Ajusta esto para centrarlo horizontalmente en el tubo de la chimenea derecha */
+  z-index: 1; /* Queda detrás de la casa */
+  transform: translateY(150%); /* Escondido por defecto */
+  transition: transform 0.2s ease-out; /* Velocidad de asomo */
+  cursor: pointer;
+}
+
+/* Clases dinámicas manejadas por JS */
+.grinch.arriba {
+  transform: translateY(0); /* Sube a su posición original */
+}
+
+.grinch.golpeado {
+  pointer-events: none; /* Evita que le hagan doble clic mientras baja */
+}
