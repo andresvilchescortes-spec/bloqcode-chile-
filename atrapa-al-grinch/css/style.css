@@ -6,14 +6,14 @@ body {
 }
 
 #juego-grinch-contenedor {
-  max-width: 800px;
+  max-width: 550px; /* <--- Reduce este número (prueba 500px, 550px o 600px) */
   margin: 20px auto;
   text-align: center;
   font-family: sans-serif;
-  background-image: url('../img/fondo.png'); /* Ruta relativa actualizada */
+  background-image: url('../img/fondo.png'); 
   background-size: cover;
   background-position: bottom;
-  padding: 20px;
+  padding: 15px; /* También puedes reducir un poco el padding si lo deseas */
   border-radius: 15px;
   color: white; 
   box-shadow: 0 10px 30px rgba(0,0,0,0.5);
