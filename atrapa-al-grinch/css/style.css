@@ -58,29 +58,29 @@ body {
 
 .celda {
   position: relative;
-  aspect-ratio: 1 / 1;
-  overflow: hidden; /* Vital para esconder al Grinch */
+  /* Cambiamos la proporción para que sea un poco más alta que ancha */
+  aspect-ratio: 1 / 1.2; 
+  overflow: hidden; 
 }
 
 .casa {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+  width: 90%; /* Achicamos la casa para que no ocupe todo el ancho/alto */
   position: absolute;
   bottom: 0;
-  left: 0;
+  left: 5%; /* La centramos horizontalmente */
   z-index: 2;
-  pointer-events: none; /* Los clics pasan a través de la casa hacia el Grinch */
+  pointer-events: none;
+  /* opacity: 0.5; <--- DESCOMENTA ESTO TEMPORALMENTE PARA VER AL GRINCH */
 }
 
 .grinch {
-  width: 25%; /* Ajusta esto si la cabeza queda muy grande o chica en tu casa */
+  width: 20%; /* Quizás haya que achicarlo para que entre en el tubo nuevo */
   position: absolute;
-  bottom: 45%; /* Ajusta esto para que la base del Grinch quede justo tras el borde de la chimenea */
-  right: 12%; /* Ajusta esto para centrarlo horizontalmente en el tubo de la chimenea derecha */
-  z-index: 1; /* Queda detrás de la casa */
-  transform: translateY(150%); /* Escondido por defecto */
-  transition: transform 0.2s ease-out; /* Velocidad de asomo */
+  bottom: 60%; /* Sube este valor para que nazca justo en la boca de la chimenea */
+  right: 15%; /* Ajusta la izquierda/derecha para centrarlo en la chimenea */
+  z-index: 1;
+  transform: translateY(150%); 
+  transition: transform 0.2s ease-out;
   cursor: pointer;
 }
 
