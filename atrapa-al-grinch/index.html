@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atrapa al Grinch - Bloqcode</title>
+    <!-- Enlace a la hoja de estilos -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <div id="juego-grinch-contenedor">
+        <div id="marcador">
+            <p>Grinchs atrapados: <span id="puntuacion">0</span> / 30</p>
+            <p>Tiempo: <span id="tiempo">30</span>s</p>
+        </div>
+        
+        <button id="btn-iniciar" onclick="iniciarJuego()">¡Atrapar al Grinch!</button>
+
+        <div id="tablero">
+            <!-- Celda 1 -->
+            <div class="celda">
+                <img src="img/grinch.png" class="grinch" data-normal="img/grinch.png" data-golpeado="img/grinch-golpeado.png" alt="Grinch">
+                <img src="img/casa.png" class="casa" alt="Casa">
+            </div>
+            
+            <!-- Celda 2 -->
+            <div class="celda">
+                <img src="img/grinch.png" class="grinch" data-normal="img/grinch.png" data-golpeado="img/grinch-golpeado.png" alt="Grinch">
+                <img src="img/casa.png" class="casa" alt="Casa">
+            </div>
+            
+            <!-- Celda 3 -->
+            <div class="celda">
+                <img src="img/grinch.png" class="grinch" data-normal="img/grinch.png" data-golpeado="img/grinch-golpeado.png" alt="Grinch">
+                <img src="img/casa.png" class="casa" alt="Casa">
+            </div>
+            
+            <!-- Celda 4 -->
+            <div class="celda">
+                <img src="img/grinch.png" class="grinch" data-normal="img/grinch.png" data-golpeado="img/grinch-golpeado.png" alt="Grinch">
+                <img src="img/casa.png" class="casa" alt="Casa">
+            </div>
+            
+            <!-- Celda 5 -->
+            <div class="celda">
+                <img src="img/grinch.png" class="grinch" data-normal="img/grinch.png" data-golpeado="img/grinch-golpeado.png" alt="Grinch">
+                <img src="img/casa.png" class="casa" alt="Casa">
+            </div>
+            
+            <!-- Celda 6 -->
+            <div class="celda">
+                <img src="img/grinch.png" class="grinch" data-normal="img/grinch.png" data-golpeado="img/grinch-golpeado.png" alt="Grinch">
+                <img src="img/casa.png" class="casa" alt="Casa">
+            </div>
+            
+            <!-- Celda 7 -->
+            <div class="celda">
+                <img src="img/grinch.png" class="grinch" data-normal="img/grinch.png" data-golpeado="img/grinch-golpeado.png" alt="Grinch">
+                <img src="img/casa.png" class="casa" alt="Casa">
+            </div>
+            
+            <!-- Celda 8 -->
+            <div class="celda">
+                <img src="img/grinch.png" class="grinch" data-normal="img/grinch.png" data-golpeado="img/grinch-golpeado.png" alt="Grinch">
+                <img src="img/casa.png" class="casa" alt="Casa">
+            </div>
+            
+            <!-- Celda 9 -->
+            <div class="celda">
+                <img src="img/grinch.png" class="grinch" data-normal="img/grinch.png" data-golpeado="img/grinch-golpeado.png" alt="Grinch">
+                <img src="img/casa.png" class="casa" alt="Casa">
+            </div>
+        </div>
+    </div>
+
+    <!--
