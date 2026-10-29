@@ -6,7 +6,7 @@ body {
 }
 
 #juego-grinch-contenedor {
-  max-width: 550px; /* <--- Reduce este número (prueba 500px, 550px o 600px) */
+  max-width: 500px; /* <--- Reduce este número (prueba 500px, 550px o 600px) */
   margin: 20px auto;
   text-align: center;
   font-family: sans-serif;
