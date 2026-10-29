@@ -76,7 +76,7 @@ body {
 .grinch {
   width: 20%; /* Quizás haya que achicarlo para que entre en el tubo nuevo */
   position: absolute;
-  bottom: 80%; /* Sube este valor para que nazca justo en la boca de la chimenea */
+  bottom: 70%; /* Sube este valor para que nazca justo en la boca de la chimenea */
   right: 8%; /* Ajusta la izquierda/derecha para centrarlo en la chimenea */
   z-index: 1;
   transform: translateY(150%); 
