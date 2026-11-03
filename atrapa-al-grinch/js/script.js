@@ -35,18 +35,32 @@ function celdaAleatoria(celdas) {
   return celda;
 }
 
+// Lógica de aparición del personaje con curva de dificultad
 function asomar() {
-  const tiempo = tiempoAleatorio(600, 1100);
+  // Tiempos por defecto (juego normal)
+  let tiempoMin = 600;
+  let tiempoMax = 1100;
+
+  // Aumentar dificultad: Si quedan 10 segundos o menos, es mucho más rápido
+  if (tiempoRestante <= 10) {
+    tiempoMin = 350; // Tiempo mínimo de asomo (muy rápido)
+    tiempoMax = 700; // Tiempo máximo de asomo
+  }
+
+  const tiempo = tiempoAleatorio(tiempoMin, tiempoMax);
   const celda = celdaAleatoria(celdas);
   const grinch = celda.querySelector('.grinch');
   
+  // Reseteamos su cara a la normal antes de subir
   grinch.src = grinch.dataset.normal;
   grinch.classList.add('arriba');
   
   setTimeout(() => {
+    // Si no lo han atrapado, lo bajamos normalmente
     if (!grinch.classList.contains('golpeado')) {
       grinch.classList.remove('arriba');
     }
+    // Si aún hay tiempo, asomamos el siguiente
     if (!tiempoTerminado) asomar();
   }, tiempo);
 }
