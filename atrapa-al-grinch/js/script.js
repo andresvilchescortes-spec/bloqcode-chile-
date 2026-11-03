@@ -43,8 +43,8 @@ function asomar() {
 
   // Aumentar dificultad: Si quedan 10 segundos o menos, es mucho más rápido
   if (tiempoRestante <= 10) {
-    tiempoMin = 350; // Tiempo mínimo de asomo (muy rápido)
-    tiempoMax = 700; // Tiempo máximo de asomo
+    tiempoMin = 450; // Tiempo mínimo de asomo (muy rápido)
+    tiempoMax = 800; // Tiempo máximo de asomo
   }
 
   const tiempo = tiempoAleatorio(tiempoMin, tiempoMax);
