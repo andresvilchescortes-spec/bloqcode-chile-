@@ -6,19 +6,21 @@ body {
 }
 
 #juego-grinch-contenedor {
-  max-width: 500px; /* <--- Reduce este número (prueba 500px, 550px o 600px) */
+  max-width: 550px; 
   margin: 20px auto;
   text-align: center;
   font-family: sans-serif;
   background-image: url('../img/fondo.png'); 
   background-size: cover;
   background-position: bottom;
-  padding: 15px; /* También puedes reducir un poco el padding si lo deseas */
+  
+  /* Modifica esta línea: Arriba, Derecha, Abajo (aumentado), Izquierda */
+  padding: 15px 15px 50px 15px; 
+  
   border-radius: 15px;
   color: white; 
   box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
-
 #marcador {
   display: flex;
   justify-content: space-around;
