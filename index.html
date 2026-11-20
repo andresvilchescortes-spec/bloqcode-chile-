@@ -124,8 +124,50 @@
             }
         }
     </style>
+
+    <link rel="preload" as="image" href="https://bloqcode.cl/assets/branding/IsotipoBC.png">
+
+<style>
+  #bc-preloader {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background-color: #090d16; /* Ajusta al color de fondo de tu web */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+  }
+
+  #bc-preloader.fade-out {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .bc-logo-anim {
+    width: 90px;
+    height: auto;
+    animation: bcPulse 1.4s ease-in-out infinite;
+  }
+
+  @keyframes bcPulse {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 0.8;
+    }
+    50% {
+      transform: scale(1.08);
+      opacity: 1;
+    }
+  }
+</style>
 </head>
 <body class="text-slate-100 min-h-screen flex flex-col justify-between selection:bg-cyan-500 selection:text-slate-950 relative overflow-x-hidden">
+
+    <div id="bc-preloader">
+      <img src="https://bloqcode.cl/assets/branding/IsotipoBC.png" alt="Bloqcode" class="bc-logo-anim">
+    </div>
 
     <!-- Fondo de malla cibernética y viñeta radial -->
     <div class="fixed inset-0 hud-grid-pattern -z-20 pointer-events-none"></div>
@@ -358,6 +400,26 @@
     <footer class="py-6 border-t border-cyan-500/20 text-center text-xs text-slate-500 font-orbitron tracking-wider">
         <p>&copy; 2026 BLOQCODE CHILE // PEQUEÑOS BLOQUES DE CÓDIGO PARA LA WEB.</p>
     </footer>
+<script>
+  (function () {
+    const preloader = document.getElementById('bc-preloader');
+    if (!preloader) return;
 
+    let hidden = false;
+    function hidePreloader() {
+      if (hidden) return;
+      hidden = true;
+      preloader.classList.add('fade-out');
+      setTimeout(() => preloader.remove(), 500);
+    }
+
+    window.addEventListener('load', () => {
+      setTimeout(hidePreloader, 250);
+    });
+
+    // Respaldo de seguridad
+    setTimeout(hidePreloader, 4000);
+  })();
+</script>
 </body>
 </html>
